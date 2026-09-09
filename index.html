@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aevrune — Minimal Text Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --white: #ffffff;
+            --off-white: #f8f9fb;
+            --light-grey: #f0f2f5;
+            --medium-grey: #d9dce1;
+            --dark-grey: #6b7280;
+            --text-dark: #1a1d23;
+            --blue-primary: #5b8dd4;
+            --blue-light: #7fa3e0;
+            --blue-soft: #e8f0f9;
+            --blue-hover: #4a7bc6;
+            --border-radius: 8px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, var(--white) 0%, var(--off-white) 100%);
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            gap: var(--spacing-md);
+            padding: var(--spacing-lg);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--light-grey);
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-lg) var(--spacing-md);
+            border-bottom: 1px solid var(--light-grey);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--dark-grey);
+        }
+
+        .btn-new {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--blue-soft);
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue-primary);
+            transition: var(--transition);
+        }
+
+        .btn-new:hover {
+            background: var(--blue-primary);
+            color: var(--white);
+            transform: scale(1.05);
+        }
+
+        .notes-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-sm);
+        }
+
+        .note-item {
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            background: var(--off-white);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+        }
+
+        .note-item:hover {
+            background: var(--blue-soft);
+            border-color: var(--blue-light);
+        }
+
+        .note-item.active {
+            background: var(--blue-primary);
+            color: var(--white);
+            border-color: var(--blue-primary);
+        }
+
+        .note-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .note-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .note-item-date {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        .note-item-delete {
+            width: 24px;
+            height: 24px;
+            background: rgba(0,0,0,0.1);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: inherit;
+            transition: var(--transition);
+            opacity: 0;
+            font-size: 12px;
+        }
+
+        .note-item:hover .note-item-delete {
+            opacity: 1;
+        }
+
+        .note-item-delete:hover {
+            background: rgba(200, 30, 30, 0.9);
+            color: var(--white);
+        }
+
+        .note-item.active .note-item-delete {
+            opacity: 1;
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Main Editor */
+        .editor-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+            min-width: 0;
+        }
+
+        .editor-header {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            border: 1px solid var(--light-grey);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-md);
+        }
+
+        .editor-title-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .editor-title-input::placeholder {
+            color: var(--medium-grey);
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .status-indicator {
+            font-size: 11px;
+            color: var(--dark-grey);
+            padding: 4px 12px;
+            background: var(--light-grey);
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .status-indicator.saved {
+            color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .status-indicator.saving {
+            color: var(--blue-primary);
+            background: var(--blue-soft);
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            background: transparent;
+            border: 1px solid var(--medium-grey);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        .btn-action:hover {
+            background: var(--blue-soft);
+            border-color: var(--blue-primary);
+            color: var(--blue-primary);
+        }
+
+        /* Editor Content */
+        .editor-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-grey);
+            box-shadow: var(--shadow-md);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-toolbar {
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--light-grey);
+            display: flex;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+            background: var(--off-white);
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: var(--spacing-xs);
+            padding-right: var(--spacing-sm);
+            border-right: 1px solid var(--medium-grey);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+            padding-right: 0;
+        }
+
+        .btn-toolbar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background: var(--white);
+            border: 1px solid var(--medium-grey);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dark);
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .btn-toolbar:hover {
+            background: var(--blue-soft);
+            border-color: var(--blue-primary);
+            color: var(--blue-primary);
+            transform: translateY(-1px);
+        }
+
+        .textarea {
+            flex: 1;
+            padding: var(--spacing-lg);
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-dark);
+            border: none;
+            outline: none;
+            background: var(--white);
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            resize: none;
+            overflow-y: auto;
+        }
+
+        /* Skeleton Screen */
+        .skeleton {
+            background: linear-gradient(90deg, var(--light-grey) 25%, var(--medium-grey) 50%, var(--light-grey) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-item {
+            height: 60px;
+            margin-bottom: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .skeleton-line {
+            height: 16px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        /* Confirmation Dialog */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(2px);
+        }
+
+        .dialog-overlay.active {
+            display: flex;
+        }
+
+        .dialog-box {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: var(--spacing-xl);
+            max-width: 400px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-dark);
+        }
+
+        .dialog-text {
+            font-size: 14px;
+            color: var(--dark-grey);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.5;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary.destructive {
+            background: #ef4444;
+            color: var(--white);
+        }
+
+        .btn-primary.destructive:hover {
+            background: #dc2626;
+        }
+
+        .btn-primary.secondary {
+            background: var(--light-grey);
+            color: var(--text-dark);
+        }
+
+        .btn-primary.secondary:hover {
+            background: var(--medium-grey);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--blue-light);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--blue-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: var(--spacing-md);
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: 200px;
+            }
+
+            .editor-area {
+                min-height: 0;
+            }
+
+            .editor-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .editor-title-input {
+                font-size: 18px;
+            }
+
+            .editor-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Notes</div>
+                <button class="btn-new" title="New note">+</button>
+            </div>
+            <div class="notes-list" id="notesList">
+                <!-- Notes will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Editor Area -->
+        <div class="editor-area">
+            <div class="editor-header">
+                <input 
+                    type="text" 
+                    class="editor-title-input" 
+                    id="titleInput" 
+                    placeholder="Untitled"
+                >
+                <div class="editor-actions">
+                    <div class="status-indicator" id="statusIndicator">Ready</div>
+                    <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">💾</button>
+                    <button class="btn-action" id="deleteBtn" title="Delete">🗑</button>
+                </div>
+            </div>
+
+            <div class="editor-content">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn-toolbar" title="Bold (Ctrl+B)">B</button>
+                        <button class="btn-toolbar" title="Italic (Ctrl+I)">I</button>
+                        <button class="btn-toolbar" title="Underline (Ctrl+U)">U</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="btn-toolbar" title="Heading 1">H1</button>
+                        <button class="btn-toolbar" title="Heading 2">H2</button>
+                        <button class="btn-toolbar" title="Bullet List">•</button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="btn-toolbar" title="Link">🔗</button>
+                        <button class="btn-toolbar" title="Code">{ }</button>
+                    </div>
+                </div>
+                <textarea 
+                    class="textarea" 
+                    id="contentInput" 
+                    placeholder="Start typing... Your notes are automatically saved to IndexedDB."
+                ></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div class="dialog-overlay" id="dialogOverlay">
+        <div class="dialog-box">
+            <div class="dialog-title">Delete Note?</div>
+            <div class="dialog-text">This action cannot be undone. The note will be permanently deleted.</div>
+            <div class="dialog-actions">
+                <button class="btn-primary secondary" id="cancelBtn">Cancel</button>
+                <button class="btn-primary destructive" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Configuration
+        const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
+        const EDGE_FUNCTION_NAME = 'sync-notes';
+        const AUTO_SYNC_INTERVAL = 5000; // 5 seconds
+
+        // IndexedDB Setup
+        class NotesDB {
+            constructor() {
+                this.db = null;
+                this.dbName = 'AevruneDB';
+                this.storeName = 'notes';
+                this.syncQueueStore = 'syncQueue';
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, 2);
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve();
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        
+                        // Notes store
+                        if (!db.objectStoreNames.contains(this.storeName)) {
+                            const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
+                            store.createIndex('created', 'created', { unique: false });
+                            store.createIndex('modified', 'modified', { unique: false });
+                        }
+
+                        // Sync queue store - tracks which notes need to be synced
+                        if (!db.objectStoreNames.contains(this.syncQueueStore)) {
+                            db.createObjectStore(this.syncQueueStore, { keyPath: 'noteId' });
+                        }
+                    };
+                });
+            }
+
+            async getAllNotes() {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.storeName], 'readonly');
+                    const store = transaction.objectStore(this.storeName);
+                    const index = store.index('modified');
+                    const request = index.getAll();
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        resolve(request.result.reverse());
+                    };
+                });
+            }
+
+            async getNote(id) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.storeName], 'readonly');
+                    const store = transaction.objectStore(this.storeName);
+                    const request = store.get(id);
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve(request.result);
+                });
+            }
+
+            async saveNote(note) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.storeName], 'readwrite');
+                    const store = transaction.objectStore(this.storeName);
+                    const request = store.put(note);
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve(request.result);
+                });
+            }
+
+            async deleteNote(id) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.storeName], 'readwrite');
+                    const store = transaction.objectStore(this.storeName);
+                    const request = store.delete(id);
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve();
+                });
+            }
+
+            async createNote(title = 'Untitled') {
+                const note = {
+                    id: Date.now(),
+                    title,
+                    content: '',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString(),
+                    synced: false,
+                };
+                await this.saveNote(note);
+                await this.addToSyncQueue(note.id, 'save');
+                return note;
+            }
+
+            // Sync Queue Management
+            async addToSyncQueue(noteId, action) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.syncQueueStore], 'readwrite');
+                    const store = transaction.objectStore(this.syncQueueStore);
+                    const queueItem = {
+                        noteId,
+                        action,
+                        timestamp: Date.now(),
+                    };
+                    const request = store.put(queueItem);
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve(queueItem);
+                });
+            }
+
+            async getSyncQueue() {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.syncQueueStore], 'readonly');
+                    const store = transaction.objectStore(this.syncQueueStore);
+                    const request = store.getAll();
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve(request.result);
+                });
+            }
+
+            async removeFromSyncQueue(noteId) {
+                return new Promise((resolve, reject) => {
+                    const transaction = this.db.transaction([this.syncQueueStore], 'readwrite');
+                    const store = transaction.objectStore(this.syncQueueStore);
+                    const request = store.delete(noteId);
+
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve();
+                });
+            }
+
+            async markAsSynced(noteId) {
+                const note = await this.getNote(noteId);
+                if (note) {
+                    note.synced = true;
+                    await this.saveNote(note);
+                }
+            }
+        }
+
+        // Sync Manager
+        class SyncManager {
+            constructor(db) {
+                this.db = db;
+                this.isSyncing = false;
+                this.syncInterval = null;
+            }
+
+            async callEdgeFunction(action, note = null, noteId = null) {
+                const functionUrl = `${SUPABASE_URL}/functions/v1/${EDGE_FUNCTION_NAME}`;
+
+                try {
+                    const response = await fetch(functionUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            action,
+                            note,
+                            note_id: noteId,
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Edge function error: ${response.statusText}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    console.error('Edge function call failed:', error);
+                    throw error;
+                }
+            }
+
+            async syncNote(noteId, action) {
+                if (this.isSyncing) return;
+
+                this.isSyncing = true;
+
+                try {
+                    if (action === 'save') {
+                        const note = await this.db.getNote(noteId);
+                        if (note) {
+                            await this.callEdgeFunction('save', note);
+                            await this.db.markAsSynced(noteId);
+                            await this.db.removeFromSyncQueue(noteId);
+                        }
+                    } else if (action === 'delete') {
+                        await this.callEdgeFunction('delete', null, noteId);
+                        await this.db.removeFromSyncQueue(noteId);
+                    }
+                } catch (error) {
+                    console.error(`Failed to sync note ${noteId}:`, error);
+                    // Note: Item stays in sync queue for retry
+                } finally {
+                    this.isSyncing = false;
+                }
+            }
+
+            async processSyncQueue() {
+                const queue = await this.db.getSyncQueue();
+
+                for (const item of queue) {
+                    await this.syncNote(item.noteId, item.action);
+                }
+            }
+
+            startAutoSync() {
+                this.syncInterval = setInterval(() => {
+                    this.processSyncQueue().catch(console.error);
+                }, AUTO_SYNC_INTERVAL);
+            }
+
+            stopAutoSync() {
+                if (this.syncInterval) {
+                    clearInterval(this.syncInterval);
+                    this.syncInterval = null;
+                }
+            }
+        }
+
+        // App State
+        let currentNoteId = null;
+        let saveTimeout = null;
+        let deleteConfirmId = null;
+        let hasUnsavedChanges = false;
+
+        const db = new NotesDB();
+        const syncManager = new SyncManager(db);
+        const notesList = document.getElementById('notesList');
+        const titleInput = document.getElementById('titleInput');
+        const contentInput = document.getElementById('contentInput');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const saveBtn = document.getElementById('saveBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const newNoteBtn = document.querySelector('.btn-new');
+        const dialogOverlay = document.getElementById('dialogOverlay');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+
+        // Initialize App
+        async function init() {
+            await db.init();
+            await loadNotes();
+            syncManager.startAutoSync();
+            setupEventListeners();
+        }
+
+        // Load and Display Notes
+        async function loadNotes() {
+            const notes = await db.getAllNotes();
+            notesList.innerHTML = '';
+
+            if (notes.length === 0) {
+                const emptyNote = await db.createNote('Welcome to Aevrune');
+                notes.unshift(emptyNote);
+            }
+
+            notes.forEach(note => {
+                const noteElement = createNoteElement(note);
+                notesList.appendChild(noteElement);
+            });
+
+            if (notes.length > 0) {
+                selectNote(notes[0].id);
+            }
+        }
+
+        function createNoteElement(note) {
+            const div = document.createElement('div');
+            div.className = 'note-item';
+            div.dataset.id = note.id;
+
+            const dateStr = new Date(note.modified).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            });
+
+            div.innerHTML = `
+                <div class="note-item-content">
+                    <div class="note-item-title">${note.title || 'Untitled'}</div>
+                    <div class="note-item-date">${dateStr}</div>
+                </div>
+                <button class="note-item-delete" data-delete="${note.id}">✕</button>
+            `;
+
+            div.addEventListener('click', (e) => {
+                if (!e.target.closest('.note-item-delete')) {
+                    selectNote(note.id);
+                }
+            });
+
+            const deleteBtn = div.querySelector('.note-item-delete');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showDeleteConfirmation(note.id);
+            });
+
+            return div;
+        }
+
+        async function selectNote(id) {
+            // Save current note if there are unsaved changes
+            if (currentNoteId && hasUnsavedChanges) {
+                await saveNote();
+            }
+
+            currentNoteId = id;
+            hasUnsavedChanges = false;
+            document.querySelectorAll('.note-item').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            const noteElement = document.querySelector(`[data-id="${id}"]`);
+            if (noteElement) {
+                noteElement.classList.add('active');
+            }
+
+            const note = await db.getNote(id);
+            if (note) {
+                titleInput.value = note.title;
+                contentInput.value = note.content;
+                setStatus('ready');
+            }
+        }
+
+        async function saveNote() {
+            if (!currentNoteId) return;
+
+            setStatus('saving');
+
+            try {
+                const existingNote = await db.getNote(currentNoteId);
+                const note = {
+                    id: currentNoteId,
+                    title: titleInput.value || 'Untitled',
+                    content: contentInput.value,
+                    created: existingNote.created,
+                    modified: new Date().toISOString(),
+                    synced: false,
+                };
+
+                // Save to IndexedDB
+                await db.saveNote(note);
+
+                // Add to sync queue
+                await db.addToSyncQueue(currentNoteId, 'save');
+
+                // Attempt immediate sync
+                try {
+                    await syncManager.syncNote(currentNoteId, 'save');
+                    setStatus('saved');
+                } catch (error) {
+                    console.warn('Auto-sync failed, will retry:', error);
+                    setStatus('saved');
+                }
+
+                // Update note item in sidebar
+                const noteElement = document.querySelector(`[data-id="${currentNoteId}"]`);
+                if (noteElement) {
+                    const dateStr = new Date(note.modified).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                    noteElement.querySelector('.note-item-date').textContent = dateStr;
+                    noteElement.querySelector('.note-item-title').textContent = note.title;
+                }
+
+                hasUnsavedChanges = false;
+            } catch (error) {
+                console.error('Failed to save note:', error);
+                setStatus('ready');
+            }
+        }
+
+        function setStatus(status) {
+            clearTimeout(saveTimeout);
+
+            if (status === 'ready') {
+                statusIndicator.textContent = 'Ready';
+                statusIndicator.className = 'status-indicator';
+            } else if (status === 'modified') {
+                statusIndicator.textContent = 'Modified';
+                statusIndicator.className = 'status-indicator';
+            } else if (status === 'saving') {
+                statusIndicator.textContent = 'Saving...';
+                statusIndicator.className = 'status-indicator saving';
+            } else if (status === 'saved') {
+                statusIndicator.textContent = '✓ Saved';
+                statusIndicator.className = 'status-indicator saved';
+                saveTimeout = setTimeout(() => {
+                    statusIndicator.textContent = 'Ready';
+                    statusIndicator.className = 'status-indicator';
+                }, 2000);
+            }
+        }
+
+        function showDeleteConfirmation(id) {
+            deleteConfirmId = id;
+            dialogOverlay.classList.add('active');
+        }
+
+        async function confirmDelete() {
+            if (deleteConfirmId) {
+                try {
+                    setStatus('saving');
+
+                    // Add to sync queue for deletion
+                    await db.addToSyncQueue(deleteConfirmId, 'delete');
+
+                    // Attempt immediate sync
+                    try {
+                        await syncManager.syncNote(deleteConfirmId, 'delete');
+                    } catch (error) {
+                        console.warn('Auto-sync delete failed, will retry:', error);
+                    }
+
+                    // Delete from IndexedDB
+                    await db.deleteNote(deleteConfirmId);
+
+                    dialogOverlay.classList.remove('active');
+
+                    if (deleteConfirmId === currentNoteId) {
+                        titleInput.value = '';
+                        contentInput.value = '';
+                        currentNoteId = null;
+                        hasUnsavedChanges = false;
+                    }
+
+                    await loadNotes();
+                    setStatus('saved');
+                } catch (error) {
+                    console.error('Failed to delete note:', error);
+                    setStatus('ready');
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            // New note
+            newNoteBtn.addEventListener('click', async () => {
+                const newNote = await db.createNote();
+                await loadNotes();
+                selectNote(newNote.id);
+            });
+
+            // Save note
+            saveBtn.addEventListener('click', saveNote);
+
+            // Content input changes
+            contentInput.addEventListener('input', () => {
+                hasUnsavedChanges = true;
+                setStatus('modified');
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveNote, 1000);
+            });
+
+            // Title input changes
+            titleInput.addEventListener('input', () => {
+                hasUnsavedChanges = true;
+                setStatus('modified');
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveNote, 1000);
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                    e.preventDefault();
+                    saveNote();
+                }
+
+                if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'd') {
+                    e.preventDefault();
+                    if (currentNoteId) {
+                        showDeleteConfirmation(currentNoteId);
+                    }
+                }
+            });
+
+            // Delete button
+            deleteBtn.addEventListener('click', () => {
+                if (currentNoteId) {
+                    showDeleteConfirmation(currentNoteId);
+                }
+            });
+
+            // Dialog buttons
+            cancelBtn.addEventListener('click', () => {
+                dialogOverlay.classList.remove('active');
+                deleteConfirmId = null;
+            });
+
+            confirmDeleteBtn.addEventListener('click', confirmDelete);
+
+            dialogOverlay.addEventListener('click', (e) => {
+                if (e.target === dialogOverlay) {
+                    dialogOverlay.classList.remove('active');
+                    deleteConfirmId = null;
+                }
+            });
+
+            // Toolbar buttons
+            document.querySelectorAll('.btn-toolbar').forEach((btn, index) => {
+                btn.addEventListener('click', () => {
+                    const textarea = contentInput;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selected = textarea.value.substring(start, end);
+
+                    let formatted = '';
+                    switch(index) {
+                        case 0: // Bold
+                            formatted = `**${selected || 'bold'}**`;
+                            break;
+                        case 1: // Italic
+                            formatted = `*${selected || 'italic'}*`;
+                            break;
+                        case 2: // Underline
+                            formatted = `__${selected || 'underline'}__`;
+                            break;
+                        case 3: // H1
+                            formatted = `# ${selected || 'Heading 1'}`;
+                            break;
+                        case 4: // H2
+                            formatted = `## ${selected || 'Heading 2'}`;
+                            break;
+                        case 5: // Bullet
+                            formatted = `- ${selected || 'Item'}`;
+                            break;
+                        case 6: // Link
+                            formatted = `[${selected || 'link'}](url)`;
+                            break;
+                        case 7: // Code
+                            formatted = `\`${selected || 'code'}\``;
+                            break;
+                    }
+
+                    if (formatted) {
+                        textarea.value = textarea.value.substring(0, start) + formatted + textarea.value.substring(end);
+                        textarea.selectionStart = start + formatted.length;
+                        textarea.selectionEnd = start + formatted.length;
+                        textarea.focus();
+
+                        const event = new Event('input', { bubbles: true });
+                        textarea.dispatchEvent(event);
+                    }
+                });
+            });
+
+            // Clean up on page unload
+            window.addEventListener('beforeunload', async (e) => {
+                if (hasUnsavedChanges) {
+                    await saveNote();
+                }
+            });
+        }
+
+        // Start the app
+        init().catch(console.error);
+    </script>
+</body>
+</html>
