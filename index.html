@@ -11,23 +11,23 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    /* Light Mode — White & Wood (Cedar/Cherry) */
-    --bg: #FFFFFF;
-    --surface: #FBF9F6; /* Warm plaster white for sidebar */
-    --surface-2: #F4EFE8; /* Light sawdust cream */
-    --text: #18120E; /* Dark bark */
+    /* Light Mode — Pure White Main & Wood Surround */
+    --bg: #FFFFFF; /* Pure white for the editor main area */
+    --surface: #F7F3EE; /* Warm cream/brown tint for the sidebar surround */
+    --surface-2: #EFE9E1; /* Slightly deeper cream for hover/active states */
+    --text: #18120E; /* Dark bark text */
     --text-soft: #4A4036;
     --text-muted: #8C8175;
-    --border: #ECE4D8; /* Subtle borders */
-    --molding: #C9B8A0; /* Rich wood molding for specific horizontal lines */
+    --border: #E5DDD3; /* Subtle borders for sidebar */
+    --molding: #1A1A1A; /* Obsidian lines - deep structural black */
     --accent: #9C5A3C; /* Polished Cedar/Cherry Wood */
     --accent-hover: #7A442C; /* Deeper wood grain */
     --accent-soft: #F5E9E1; /* Warm wood glow background */
     --success: #5F7A3A;
-    --warn: #B08832;
+    --warn: #B08832; /* Light mode yellow for modified */
     --danger: #A23B2A;
-    --shadow-soft: 0 20px 60px rgba(92, 24, 16, 0.06);
-    --shadow-md: 0 4px 12px rgba(92, 24, 16, 0.04);
+    --shadow-soft: 0 8px 24px rgba(34, 24, 16, 0.08);
+    --shadow-md: 0 4px 12px rgba(34, 24, 16, 0.05);
     --radius: 4px; /* Sharp, architectural */
     --radius-lg: 8px;
     --t: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -36,23 +36,23 @@
   }
 
   html[data-theme="dark"] {
-    /* Dark Mode — Obsidian & Ember */
-    --bg: #0A0A0A;
-    --surface: #0F0F0F;
-    --surface-2: #181818;
+    /* Dark Mode — Pure Black Main & Golden Yellow */
+    --bg: #000000; /* Pure black for the editor main area */
+    --surface: #0F0F0F; /* Obsidian surround */
+    --surface-2: #1A1A1A; /* Dark grey for hover/active states */
     --text: #F5F5F5;
     --text-soft: #B5B5B5;
     --text-muted: #6B6B6B;
-    --border: #1A1A1A;
-    --molding: #2A2A2A; /* Dark architectural groove */
-    --accent: #FF6B00; /* Ember orange */
-    --accent-hover: #FF8533;
-    --accent-soft: #1A1105;
+    --border: #1F1F1F; /* Subtle borders for sidebar */
+    --molding: #E0B450; /* Golden yellow lines */
+    --accent: #E0B450; /* Golden yellow accent */
+    --accent-hover: #FFCB66; /* Brighter yellow on hover */
+    --accent-soft: #2A2410; /* Dark yellow tint for hover */
     --success: #7AB560;
-    --warn: #E0B450;
+    --warn: #E0B450; /* Dark mode yellow for modified */
     --danger: #D97060;
-    --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.5);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 
   html, body {
@@ -65,16 +65,8 @@
   }
 
   body {
-    background: 
-      radial-gradient(800px circle at 100% 0%, rgba(156, 90, 60, 0.06), transparent 50%),
-      var(--bg);
+    background: var(--surface); /* The surround takes the cream/obsidian tone */
     transition: background 0.4s ease, color 0.4s ease;
-  }
-
-  html[data-theme="dark"] body {
-    background: 
-      radial-gradient(1000px circle at 50% 100%, rgba(255, 106, 0, 0.08), transparent 50%),
-      var(--bg);
   }
 
   /* ========== Layout ========== */
@@ -96,6 +88,9 @@
 
   .sidebar-header {
     padding: 24px 24px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   .brand {
     display: flex;
@@ -125,9 +120,7 @@
     color: var(--text-soft);
     display: grid; place-items: center;
     transition: var(--t);
-    position: absolute;
-    top: 20px;
-    right: 24px;
+    flex-shrink: 0;
   }
   .theme-toggle:hover {
     border-color: var(--accent);
@@ -159,7 +152,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid var(--molding); /* KEPT: Thick wood molding under "Notes" */
+    border-bottom: 2px solid var(--molding); /* Obsidian/Yellow line under Notes */
   }
   .sidebar-title {
     font-size: 11px;
@@ -252,7 +245,7 @@
 
   .sidebar-footer {
     padding: 16px 24px;
-    border-top: 2px solid var(--molding); /* KEPT: Thick wood molding above "Synced" */
+    border-top: 2px solid var(--molding); /* Obsidian/Yellow line above Synced */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -282,7 +275,7 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: var(--bg);
+    background: var(--bg); /* The main writing area is pure white/black */
   }
 
   /* Glass top bar */
@@ -294,14 +287,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 32px;
-    background: rgba(255,255,255,0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: var(--bg); /* Match the pure white/black background */
     z-index: 10;
-    /* Removed thick molding line to keep it clean */
-  }
-  html[data-theme="dark"] .editor-top-bar {
-    background: rgba(10,10,10,0.6);
+    border-bottom: 1px solid var(--border);
   }
 
   .status-indicator {
@@ -337,7 +325,7 @@
   .btn-action {
     height: 32px;
     padding: 0 12px;
-    background: transparent;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     cursor: pointer;
@@ -400,7 +388,7 @@
     letter-spacing: 0.1em;
     margin-bottom: 48px;
     padding-bottom: 20px;
-    border-bottom: 2px solid var(--molding); /* KEPT: The heavy wooden shelf line beneath the title/meta */
+    border-bottom: 2px solid var(--molding); /* Obsidian/Yellow line under Untitled/meta */
   }
   .editor-meta .dot {
     width: 3px; height: 3px;
@@ -437,7 +425,7 @@
   .editor-toolbar {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 32px;
+    border-radius: var(--radius); /* Sharp rectangle instead of pill */
     padding: 4px;
     display: flex;
     gap: 2px;
@@ -458,7 +446,7 @@
     background: transparent;
     border: none;
     cursor: pointer;
-    border-radius: 24px;
+    border-radius: var(--radius);
     color: var(--text-soft);
     display: grid; place-items: center;
     font-size: 14px;
@@ -482,7 +470,7 @@
     pointer-events: auto;
     background: var(--surface);
     padding: 6px 12px;
-    border-radius: 16px;
+    border-radius: var(--radius);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-md);
   }
@@ -787,10 +775,7 @@
         <span class="brand-name">Aevrune</span>
       </div>
       <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-        </svg>
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
       </button>
     </div>
 
@@ -1151,6 +1136,7 @@
   const confirmDeleteBtn = $('confirmDeleteBtn');
   const searchInput = $('searchInput');
   const themeToggle = $('themeToggle');
+  const themeIcon = $('themeIcon');
   const paletteOverlay = $('paletteOverlay');
   const paletteInput = $('paletteInput');
   const paletteList = $('paletteList');
@@ -1166,6 +1152,10 @@
   const syncLabel = $('syncLabel');
   const notesCountLabel = $('notesCountLabel');
 
+  // SVG Icons for theme toggle
+  const SUN_ICON = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>`;
+  const MOON_ICON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
   /* ---------- Theme ---------- */
   function getStoredTheme() {
     try { return localStorage.getItem('aevrune-theme'); } catch { return null; }
@@ -1175,6 +1165,7 @@
   }
   function applyTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
+    themeIcon.innerHTML = t === 'dark' ? MOON_ICON : SUN_ICON;
   }
   applyTheme(getStoredTheme() || 'light');
 
