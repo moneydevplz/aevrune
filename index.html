@@ -1,1146 +1,1747 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aevrune — Minimal Text Editor</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aevrune — A place to write</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            --white: #ffffff;
-            --off-white: #f8f9fb;
-            --light-grey: #f0f2f5;
-            --medium-grey: #d9dce1;
-            --dark-grey: #6b7280;
-            --text-dark: #1a1d23;
-            --blue-primary: #5b8dd4;
-            --blue-light: #7fa3e0;
-            --blue-soft: #e8f0f9;
-            --blue-hover: #4a7bc6;
-            --border-radius: 8px;
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
-            --spacing-md: 16px;
-            --spacing-lg: 24px;
-            --spacing-xl: 32px;
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-            --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+  :root {
+    /* Light Mode — White & Wood (Cedar/Cherry) */
+    --bg: #FFFFFF;
+    --surface: #FBF9F6; /* Warm plaster white for sidebar */
+    --surface-2: #F4EFE8; /* Light sawdust cream */
+    --text: #18120E; /* Dark bark */
+    --text-soft: #4A4036;
+    --text-muted: #8C8175;
+    --border: #ECE4D8; /* Subtle borders */
+    --molding: #C9B8A0; /* Rich wood molding for specific horizontal lines */
+    --accent: #9C5A3C; /* Polished Cedar/Cherry Wood */
+    --accent-hover: #7A442C; /* Deeper wood grain */
+    --accent-soft: #F5E9E1; /* Warm wood glow background */
+    --success: #5F7A3A;
+    --warn: #B08832;
+    --danger: #A23B2A;
+    --shadow-soft: 0 20px 60px rgba(92, 24, 16, 0.06);
+    --shadow-md: 0 4px 12px rgba(92, 24, 16, 0.04);
+    --radius: 4px; /* Sharp, architectural */
+    --radius-lg: 8px;
+    --t: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', -apple-system, sans-serif;
+  }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, var(--white) 0%, var(--off-white) 100%);
-            color: var(--text-dark);
-            overflow: hidden;
-        }
+  html[data-theme="dark"] {
+    /* Dark Mode — Obsidian & Ember */
+    --bg: #0A0A0A;
+    --surface: #0F0F0F;
+    --surface-2: #181818;
+    --text: #F5F5F5;
+    --text-soft: #B5B5B5;
+    --text-muted: #6B6B6B;
+    --border: #1A1A1A;
+    --molding: #2A2A2A; /* Dark architectural groove */
+    --accent: #FF6B00; /* Ember orange */
+    --accent-hover: #FF8533;
+    --accent-soft: #1A1105;
+    --success: #7AB560;
+    --warn: #E0B450;
+    --danger: #D97060;
+    --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
 
-        .container {
-            display: flex;
-            width: 100%;
-            height: 100vh;
-            gap: var(--spacing-md);
-            padding: var(--spacing-lg);
-        }
+  html, body {
+    height: 100%;
+    font-family: var(--sans);
+    color: var(--text);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-        /* Sidebar */
-        .sidebar {
-            width: 280px;
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid var(--light-grey);
-        }
+  body {
+    background: 
+      radial-gradient(800px circle at 100% 0%, rgba(156, 90, 60, 0.06), transparent 50%),
+      var(--bg);
+    transition: background 0.4s ease, color 0.4s ease;
+  }
 
-        .sidebar-header {
-            padding: var(--spacing-lg) var(--spacing-md);
-            border-bottom: 1px solid var(--light-grey);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+  html[data-theme="dark"] body {
+    background: 
+      radial-gradient(1000px circle at 50% 100%, rgba(255, 106, 0, 0.08), transparent 50%),
+      var(--bg);
+  }
 
-        .sidebar-title {
-            font-size: 13px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--dark-grey);
-        }
+  /* ========== Layout ========== */
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: 100vh;
+  }
 
-        .btn-new {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            background: var(--blue-soft);
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--blue-primary);
-            transition: var(--transition);
-        }
+  /* ========== Sidebar ========== */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-        .btn-new:hover {
-            background: var(--blue-primary);
-            color: var(--white);
-            transform: scale(1.05);
-        }
+  .sidebar-header {
+    padding: 24px 24px 20px;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .brand-glyph {
+    font-family: var(--serif);
+    font-size: 24px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .brand-name {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
 
-        .notes-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: var(--spacing-sm);
-        }
+  .theme-toggle {
+    width: 32px; height: 32px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text-soft);
+    display: grid; place-items: center;
+    transition: var(--t);
+    position: absolute;
+    top: 20px;
+    right: 24px;
+  }
+  .theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .theme-toggle svg { width: 14px; height: 14px; }
 
-        .note-item {
-            padding: var(--spacing-md);
-            margin-bottom: var(--spacing-sm);
-            border-radius: var(--border-radius);
-            background: var(--off-white);
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid transparent;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--spacing-sm);
-        }
+  .sidebar-search {
+    padding: 0 24px 16px;
+  }
+  .search-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    outline: none;
+    transition: var(--t);
+  }
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-bottom-color: var(--accent); }
 
-        .note-item:hover {
-            background: var(--blue-soft);
-            border-color: var(--blue-light);
-        }
+  .sidebar-list-head {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--molding); /* KEPT: Thick wood molding under "Notes" */
+  }
+  .sidebar-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+  }
+  .btn-new {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    display: grid; place-items: center;
+    border-radius: var(--radius);
+    transition: var(--t);
+  }
+  .btn-new:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .btn-new svg { width: 14px; height: 14px; }
 
-        .note-item.active {
-            background: var(--blue-primary);
-            color: var(--white);
-            border-color: var(--blue-primary);
-        }
+  .notes-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .notes-list::-webkit-scrollbar { width: 4px; }
+  .notes-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .notes-list::-webkit-scrollbar-track { background: transparent; }
 
-        .note-item-content {
-            flex: 1;
-            min-width: 0;
-        }
+  .note-item {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .note-item:hover { background: var(--surface-2); }
+  .note-item.active { background: var(--surface-2); }
+  .note-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+  }
 
-        .note-item-title {
-            font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+  .note-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .note-item.active .note-dot { background: var(--accent); }
+  .note-item.unsynced .note-dot { background: var(--warn); }
 
-        .note-item-date {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 2px;
-        }
+  .note-item-content {
+    flex: 1; min-width: 0;
+  }
+  .note-item-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .note-item.active .note-item-title { color: var(--accent); font-weight: 600; }
+  .note-item-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
 
-        .note-item-delete {
-            width: 24px;
-            height: 24px;
-            background: rgba(0,0,0,0.1);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: inherit;
-            transition: var(--transition);
-            opacity: 0;
-            font-size: 12px;
-        }
+  .note-item-delete {
+    opacity: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+    transition: var(--t);
+  }
+  .note-item:hover .note-item-delete { opacity: 1; }
+  .note-item.active .note-item-delete { opacity: 0.5; }
+  .note-item-delete:hover { color: var(--danger); opacity: 1; }
+  .note-item-delete svg { width: 14px; height: 14px; }
 
-        .note-item:hover .note-item-delete {
-            opacity: 1;
-        }
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 2px solid var(--molding); /* KEPT: Thick wood molding above "Synced" */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .sync-status {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .footer-stat-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+  .footer-stat-dot.pending { background: var(--warn); }
+  .footer-link {
+    cursor: pointer;
+    transition: var(--t);
+    text-decoration: none;
+    color: var(--text-muted);
+  }
+  .footer-link:hover { color: var(--accent); }
 
-        .note-item-delete:hover {
-            background: rgba(200, 30, 30, 0.9);
-            color: var(--white);
-        }
+  /* ========== Editor ========== */
+  .editor-area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--bg);
+  }
 
-        .note-item.active .note-item-delete {
-            opacity: 1;
-            background: rgba(255,255,255,0.2);
-        }
+  /* Glass top bar */
+  .editor-top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 32px;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 10;
+    /* Removed thick molding line to keep it clean */
+  }
+  html[data-theme="dark"] .editor-top-bar {
+    background: rgba(10,10,10,0.6);
+  }
 
-        /* Main Editor */
-        .editor-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-            min-width: 0;
-        }
+  .status-indicator {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.02em;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .status-indicator.saved { color: var(--success); }
+  .status-indicator.saved .status-dot { background: var(--success); }
+  .status-indicator.saving { color: var(--accent); }
+  .status-indicator.saving .status-dot { background: var(--accent); animation: pulse 1s infinite; }
+  .status-indicator.modified { color: var(--warn); }
+  .status-indicator.modified .status-dot { background: var(--warn); }
 
-        .editor-header {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-md);
-            border: 1px solid var(--light-grey);
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: var(--spacing-md);
-        }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
 
-        .editor-title-input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--text-dark);
-            outline: none;
-        }
+  .editor-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-action {
+    height: 32px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text-soft);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--t);
+  }
+  .btn-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .btn-action.danger:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
 
-        .editor-title-input::placeholder {
-            color: var(--medium-grey);
-        }
+  /* The Writing Room */
+  .editor-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 56px; /* space for top bar */
+  }
+  .editor-scroll::-webkit-scrollbar { width: 8px; }
+  .editor-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  
+  .editor-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 40px 140px;
+  }
 
-        .editor-actions {
-            display: flex;
-            gap: var(--spacing-sm);
-            align-items: center;
-        }
+  .editor-title-input {
+    font-family: var(--serif);
+    font-size: 44px;
+    font-weight: 400;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .editor-title-input::placeholder { color: var(--text-muted); }
 
-        .status-indicator {
-            font-size: 11px;
-            color: var(--dark-grey);
-            padding: 4px 12px;
-            background: var(--light-grey);
-            border-radius: 20px;
-            white-space: nowrap;
-        }
+  .editor-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 48px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--molding); /* KEPT: The heavy wooden shelf line beneath the title/meta */
+  }
+  .editor-meta .dot {
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
 
-        .status-indicator.saved {
-            color: #10b981;
-            background: #ecfdf5;
-        }
+  .textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--text);
+    min-height: 50vh;
+  }
+  .textarea::placeholder { color: var(--text-muted); }
 
-        .status-indicator.saving {
-            color: var(--blue-primary);
-            background: var(--blue-soft);
-            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
+  /* Floating Console (Toolbar + Counter) */
+  .editor-bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    pointer-events: none;
+    z-index: 10;
+  }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
+  .editor-toolbar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 32px;
+    padding: 4px;
+    display: flex;
+    gap: 2px;
+    box-shadow: var(--shadow-soft);
+    pointer-events: auto;
+  }
+  .toolbar-group {
+    display: flex;
+    gap: 2px;
+    padding-right: 4px;
+    margin-right: 4px;
+    border-right: 1px solid var(--border);
+  }
+  .toolbar-group:last-child { border-right: none; margin-right: 0; padding-right: 0; }
 
-        .btn-action {
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            background: transparent;
-            border: 1px solid var(--medium-grey);
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-dark);
-            transition: var(--transition);
-        }
+  .btn-toolbar {
+    width: 32px; height: 32px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 24px;
+    color: var(--text-soft);
+    display: grid; place-items: center;
+    font-size: 14px;
+    transition: var(--t);
+  }
+  .btn-toolbar:hover {
+    background: var(--surface-2);
+    color: var(--accent);
+  }
+  .btn-toolbar .serif { font-family: var(--serif); font-weight: 400; }
+  .btn-toolbar svg { width: 14px; height: 14px; }
 
-        .btn-action:hover {
-            background: var(--blue-soft);
-            border-color: var(--blue-primary);
-            color: var(--blue-primary);
-        }
+  .counter {
+    position: absolute;
+    right: 32px;
+    bottom: 32px;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+    background: var(--surface);
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+  .counter strong { color: var(--text); font-weight: 600; }
+  .counter-sep { color: var(--text-faint); }
 
-        /* Editor Content */
-        .editor-content {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            border: 1px solid var(--light-grey);
-            box-shadow: var(--shadow-md);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+  /* ========== Skeletons ========== */
+  .skeleton-note {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .skeleton-line {
+    height: 12px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    animation: shimmer 1.5s infinite;
+  }
+  .skeleton-line.short { width: 40%; }
+  @keyframes shimmer {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+  }
 
-        .editor-toolbar {
-            padding: var(--spacing-md);
-            border-bottom: 1px solid var(--light-grey);
-            display: flex;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
-            background: var(--off-white);
-        }
+  /* ========== Dialog & Overlays ========== */
+  .dialog-overlay, .palette-overlay, .shortcuts-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .dialog-overlay.active, .palette-overlay.active, .shortcuts-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
 
-        .toolbar-group {
-            display: flex;
-            gap: var(--spacing-xs);
-            padding-right: var(--spacing-sm);
-            border-right: 1px solid var(--medium-grey);
-        }
+  .dialog-box, .palette, .shortcuts-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    width: 100%;
+    max-width: 480px;
+    transform: translateY(10px);
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .dialog-overlay.active .dialog-box,
+  .palette-overlay.active .palette,
+  .shortcuts-overlay.active .shortcuts-box {
+    transform: translateY(0);
+  }
 
-        .toolbar-group:last-child {
-            border-right: none;
-            padding-right: 0;
-        }
+  /* Delete Dialog */
+  .dialog-box { padding: 32px; max-width: 420px; }
+  .dialog-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radius);
+    background: rgba(162, 59, 42, 0.1);
+    color: var(--danger);
+    display: grid; place-items: center;
+    margin-bottom: 20px;
+  }
+  .dialog-icon svg { width: 18px; height: 18px; }
+  .dialog-title {
+    font-family: var(--serif);
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .dialog-text {
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .dialog-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+  .btn-primary {
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--t);
+  }
+  .btn-primary:hover { border-color: var(--text-muted); }
+  .btn-primary.destructive {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #fff;
+  }
+  .btn-primary.destructive:hover { opacity: 0.9; }
 
-        .btn-toolbar {
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            background: var(--white);
-            border: 1px solid var(--medium-grey);
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-dark);
-            transition: var(--transition);
-            font-weight: 500;
-        }
+  /* Command Palette */
+  .palette {
+    max-width: 560px;
+    overflow: hidden;
+    margin-top: 10vh;
+  }
+  .palette-input-wrap {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+  }
+  .palette-input-wrap svg { width: 16px; height: 16px; }
+  .palette-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--sans);
+    font-size: 16px;
+    color: var(--text);
+  }
+  .palette-list {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 8px;
+  }
+  .palette-section {
+    padding: 8px 12px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .palette-item {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .palette-item.selected {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .palette-item svg { width: 16px; height: 16px; color: inherit; }
+  .palette-item-label { flex: 1; font-size: 14px; }
+  .palette-item-kbd {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
 
-        .btn-toolbar:hover {
-            background: var(--blue-soft);
-            border-color: var(--blue-primary);
-            color: var(--blue-primary);
-            transform: translateY(-1px);
-        }
+  /* Shortcuts */
+  .shortcuts-box {
+    max-width: 480px;
+    padding: 32px;
+  }
+  .shortcuts-title {
+    font-family: var(--serif);
+    font-size: 28px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .shortcuts-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .shortcut {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .shortcut-label { font-size: 13px; color: var(--text-soft); }
+  .shortcut-keys { display: flex; gap: 4px; }
+  .key {
+    padding: 2px 6px;
+    font-size: 11px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--sans);
+  }
+  .shortcuts-close {
+    margin-top: 24px;
+    width: 100%;
+    padding: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    transition: var(--t);
+  }
+  .shortcuts-close:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 
-        .textarea {
-            flex: 1;
-            padding: var(--spacing-lg);
-            font-size: 15px;
-            line-height: 1.6;
-            color: var(--text-dark);
-            border: none;
-            outline: none;
-            background: var(--white);
-            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
-            resize: none;
-            overflow-y: auto;
-        }
+  /* ========== Toast ========== */
+  .toast-container {
+    position: fixed;
+    bottom: 90px; /* sits above the floating toolbar */
+    left: calc(50% + 150px); /* offset to center in the editor space */
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1200;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    animation: slideIn 0.3s ease;
+    pointer-events: auto;
+  }
+  .toast.exit { animation: slideOut 0.25s ease forwards; }
+  .toast svg { width: 14px; height: 14px; }
+  .toast.success svg { color: var(--success); }
+  .toast.warn svg { color: var(--warn); }
+  @keyframes slideIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    to { transform: translateY(10px); opacity: 0; }
+  }
 
-        /* Skeleton Screen */
-        .skeleton {
-            background: linear-gradient(90deg, var(--light-grey) 25%, var(--medium-grey) 50%, var(--light-grey) 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
+  /* ========== Empty State ========== */
+  .empty-list {
+    padding: 40px 24px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .empty-list-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--text-soft);
+    margin-bottom: 8px;
+  }
+  .empty-list-text {
+    font-size: 12px;
+  }
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+  /* ========== Reduced motion ========== */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 
-        .skeleton-item {
-            height: 60px;
-            margin-bottom: var(--spacing-sm);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
-
-        .skeleton-line {
-            height: 16px;
-            border-radius: 4px;
-            margin-bottom: 8px;
-        }
-
-        /* Confirmation Dialog */
-        .dialog-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.3);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(2px);
-        }
-
-        .dialog-overlay.active {
-            display: flex;
-        }
-
-        .dialog-box {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: var(--spacing-xl);
-            max-width: 400px;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .dialog-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: var(--spacing-md);
-            color: var(--text-dark);
-        }
-
-        .dialog-text {
-            font-size: 14px;
-            color: var(--dark-grey);
-            margin-bottom: var(--spacing-lg);
-            line-height: 1.5;
-        }
-
-        .dialog-actions {
-            display: flex;
-            gap: var(--spacing-md);
-            justify-content: flex-end;
-        }
-
-        .btn-primary {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: none;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-primary.destructive {
-            background: #ef4444;
-            color: var(--white);
-        }
-
-        .btn-primary.destructive:hover {
-            background: #dc2626;
-        }
-
-        .btn-primary.secondary {
-            background: var(--light-grey);
-            color: var(--text-dark);
-        }
-
-        .btn-primary.secondary:hover {
-            background: var(--medium-grey);
-        }
-
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--blue-light);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--blue-primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                padding: var(--spacing-md);
-            }
-
-            .sidebar {
-                width: 100%;
-                max-height: 200px;
-            }
-
-            .editor-area {
-                min-height: 0;
-            }
-
-            .editor-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .editor-title-input {
-                font-size: 18px;
-            }
-
-            .editor-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-        }
-    </style>
+  /* ========== Responsive ========== */
+  @media (max-width: 860px) {
+    .app {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+    }
+    .sidebar { height: 40vh; border-right: none; border-bottom: 2px solid var(--molding); }
+    .editor-inner { padding: 40px 24px 140px; }
+    .editor-title-input { font-size: 32px; }
+    .toast-container { left: 50%; }
+    .counter { display: none; }
+    .shortcuts-list { grid-template-columns: 1fr; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-title">Notes</div>
-                <button class="btn-new" title="New note">+</button>
-            </div>
-            <div class="notes-list" id="notesList">
-                <!-- Notes will be loaded here -->
-            </div>
-        </div>
 
-        <!-- Editor Area -->
-        <div class="editor-area">
-            <div class="editor-header">
-                <input 
-                    type="text" 
-                    class="editor-title-input" 
-                    id="titleInput" 
-                    placeholder="Untitled"
-                >
-                <div class="editor-actions">
-                    <div class="status-indicator" id="statusIndicator">Ready</div>
-                    <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">💾</button>
-                    <button class="btn-action" id="deleteBtn" title="Delete">🗑</button>
-                </div>
-            </div>
-
-            <div class="editor-content">
-                <div class="editor-toolbar">
-                    <div class="toolbar-group">
-                        <button class="btn-toolbar" title="Bold (Ctrl+B)">B</button>
-                        <button class="btn-toolbar" title="Italic (Ctrl+I)">I</button>
-                        <button class="btn-toolbar" title="Underline (Ctrl+U)">U</button>
-                    </div>
-                    <div class="toolbar-group">
-                        <button class="btn-toolbar" title="Heading 1">H1</button>
-                        <button class="btn-toolbar" title="Heading 2">H2</button>
-                        <button class="btn-toolbar" title="Bullet List">•</button>
-                    </div>
-                    <div class="toolbar-group">
-                        <button class="btn-toolbar" title="Link">🔗</button>
-                        <button class="btn-toolbar" title="Code">{ }</button>
-                    </div>
-                </div>
-                <textarea 
-                    class="textarea" 
-                    id="contentInput" 
-                    placeholder="Start typing... Your notes are automatically saved to IndexedDB."
-                ></textarea>
-            </div>
-        </div>
+<div class="app">
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-glyph">Æ</span>
+        <span class="brand-name">Aevrune</span>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
     </div>
 
-    <!-- Confirmation Dialog -->
-    <div class="dialog-overlay" id="dialogOverlay">
-        <div class="dialog-box">
-            <div class="dialog-title">Delete Note?</div>
-            <div class="dialog-text">This action cannot be undone. The note will be permanently deleted.</div>
-            <div class="dialog-actions">
-                <button class="btn-primary secondary" id="cancelBtn">Cancel</button>
-                <button class="btn-primary destructive" id="confirmDeleteBtn">Delete</button>
-            </div>
-        </div>
+    <div class="sidebar-search">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search the shelves..." aria-label="Search notes">
     </div>
 
-    <script type="module">
-        // Configuration
-        const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
-        const EDGE_FUNCTION_NAME = 'sync-notes';
-        const AUTO_SYNC_INTERVAL = 5000; // 5 seconds
+    <div class="sidebar-list-head">
+      <span class="sidebar-title" id="notesCountLabel">Notes</span>
+      <button class="btn-new" id="newNoteBtn" title="New note (Ctrl+N)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </button>
+    </div>
 
-        // IndexedDB Setup
-        class NotesDB {
-            constructor() {
-                this.db = null;
-                this.dbName = 'AevruneDB';
-                this.storeName = 'notes';
-                this.syncQueueStore = 'syncQueue';
-            }
+    <div class="notes-list" id="notesList"></div>
 
-            async init() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(this.dbName, 2);
+    <div class="sidebar-footer">
+      <div class="sync-status">
+        <span class="footer-stat-dot" id="syncDot"></span>
+        <span id="syncLabel">Synced</span>
+      </div>
+      <a class="footer-link" id="shortcutsLink">Shortcuts</a>
+    </div>
+  </aside>
 
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        this.db = request.result;
-                        resolve();
-                    };
+  <!-- ============ Editor ============ -->
+  <main class="editor-area">
+    <div class="editor-top-bar">
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span>
+        <span id="statusText">Ready</span>
+      </div>
+      <div class="editor-actions">
+        <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">Save</button>
+        <button class="btn-action danger" id="deleteBtn" title="Delete (Ctrl+Shift+D)">Delete</button>
+      </div>
+    </div>
 
-                    request.onupgradeneeded = (event) => {
-                        const db = event.target.result;
-                        
-                        // Notes store
-                        if (!db.objectStoreNames.contains(this.storeName)) {
-                            const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
-                            store.createIndex('created', 'created', { unique: false });
-                            store.createIndex('modified', 'modified', { unique: false });
-                        }
+    <div class="editor-scroll">
+      <div class="editor-inner">
+        <input type="text" class="editor-title-input" id="titleInput" placeholder="Untitled" autocomplete="off" spellcheck="false">
+        <div class="editor-meta">
+          <span id="metaModified">—</span>
+          <span class="dot"></span>
+          <span id="metaWords">0 words</span>
+        </div>
+        <textarea
+          class="textarea"
+          id="contentInput"
+          placeholder="The room is quiet. Begin."
+          spellcheck="true"
+        ></textarea>
+      </div>
+    </div>
 
-                        // Sync queue store - tracks which notes need to be synced
-                        if (!db.objectStoreNames.contains(this.syncQueueStore)) {
-                            db.createObjectStore(this.syncQueueStore, { keyPath: 'noteId' });
-                        }
-                    };
-                });
-            }
+    <div class="editor-bottom-bar">
+      <div class="editor-toolbar" id="editorToolbar">
+        <div class="toolbar-group">
+          <button class="btn-toolbar" data-fmt="bold" title="Bold (Ctrl+B)"><span style="font-weight:700">B</span></button>
+          <button class="btn-toolbar" data-fmt="italic" title="Italic (Ctrl+I)"><span style="font-style:italic">I</span></button>
+          <button class="btn-toolbar" data-fmt="underline" title="Underline (Ctrl+U)"><span style="text-decoration:underline">U</span></button>
+        </div>
+        <div class="toolbar-group">
+          <button class="btn-toolbar" data-fmt="h1" title="Heading 1"><span class="serif">H1</span></button>
+          <button class="btn-toolbar" data-fmt="h2" title="Heading 2"><span class="serif">H2</span></button>
+          <button class="btn-toolbar" data-fmt="bullet" title="Bullet list">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            </svg>
+          </button>
+          <button class="btn-toolbar" data-fmt="quote" title="Quote">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2-1 0-1 .008-1 1.008V21z"/>
+              <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="toolbar-group">
+          <button class="btn-toolbar" data-fmt="link" title="Link (Ctrl+L)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </button>
+          <button class="btn-toolbar" data-fmt="code" title="Code">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="counter">
+        <span><strong id="wordCount">0</strong> words</span>
+        <span class="counter-sep">·</span>
+        <span><strong id="readTime">0</strong> min read</span>
+      </div>
+    </div>
+  </main>
+</div>
 
-            async getAllNotes() {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readonly');
-                    const store = transaction.objectStore(this.storeName);
-                    const index = store.index('modified');
-                    const request = index.getAll();
+<!-- Delete dialog -->
+<div class="dialog-overlay" id="dialogOverlay">
+  <div class="dialog-box">
+    <div class="dialog-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+    </div>
+    <div class="dialog-title">Delete this note?</div>
+    <div class="dialog-text">This action cannot be undone. The note will be permanently removed from this device and your synced storage.</div>
+    <div class="dialog-actions">
+      <button class="btn-primary" id="cancelBtn">Keep it</button>
+      <button class="btn-primary destructive" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
 
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        resolve(request.result.reverse());
-                    };
-                });
-            }
+<!-- Command palette -->
+<div class="palette-overlay" id="paletteOverlay">
+  <div class="palette" role="dialog" aria-label="Command palette">
+    <div class="palette-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input type="text" class="palette-input" id="paletteInput" placeholder="Type a command or search..." autocomplete="off">
+    </div>
+    <div class="palette-list" id="paletteList"></div>
+  </div>
+</div>
 
-            async getNote(id) {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readonly');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.get(id);
+<!-- Shortcuts overlay -->
+<div class="shortcuts-overlay" id="shortcutsOverlay">
+  <div class="shortcuts-box">
+    <div class="shortcuts-title">Keyboard shortcuts</div>
+    <div class="shortcuts-list">
+      <div class="shortcut"><span class="shortcut-label">New note</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">N</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Save</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">S</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Delete</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">⇧</span><span class="key">D</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Command palette</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">K</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Bold</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">B</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Italic</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">I</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Link</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">L</span></div></div>
+      <div class="shortcut"><span class="shortcut-label">Toggle theme</span><div class="shortcut-keys"><span class="key">Ctrl</span><span class="key">J</span></div></div>
+    </div>
+    <button class="shortcuts-close" id="shortcutsClose">Got it</button>
+  </div>
+</div>
 
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => resolve(request.result);
-                });
-            }
+<!-- Toasts -->
+<div class="toast-container" id="toastContainer"></div>
 
-            async saveNote(note) {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readwrite');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.put(note);
+<script type="module">
+  /* ============================================================
+   * Aevrune — UI layer (Backend preserved exactly)
+   * ============================================================ */
 
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => resolve(request.result);
-                });
-            }
+  // Configuration (unchanged)
+  const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
+  const EDGE_FUNCTION_NAME = 'sync-notes';
+  const AUTO_SYNC_INTERVAL = 5000;
 
-            async deleteNote(id) {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.storeName], 'readwrite');
-                    const store = transaction.objectStore(this.storeName);
-                    const request = store.delete(id);
+  /* ---------- IndexedDB (unchanged) ---------- */
+  class NotesDB {
+    constructor() {
+      this.db = null;
+      this.dbName = 'AevruneDB';
+      this.storeName = 'notes';
+      this.syncQueueStore = 'syncQueue';
+    }
+    async init() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(this.dbName, 2);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => { this.db = request.result; resolve(); };
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
+            store.createIndex('created', 'created', { unique: false });
+            store.createIndex('modified', 'modified', { unique: false });
+          }
+          if (!db.objectStoreNames.contains(this.syncQueueStore)) {
+            db.createObjectStore(this.syncQueueStore, { keyPath: 'noteId' });
+          }
+        };
+      });
+    }
+    async getAllNotes() {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.storeName], 'readonly');
+        const store = transaction.objectStore(this.storeName);
+        const index = store.index('modified');
+        const request = index.getAll();
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result.reverse());
+      });
+    }
+    async getNote(id) {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.storeName], 'readonly');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.get(id);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+      });
+    }
+    async saveNote(note) {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.storeName], 'readwrite');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.put(note);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+      });
+    }
+    async deleteNote(id) {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.storeName], 'readwrite');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.delete(id);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve();
+      });
+    }
+    async createNote(title = 'Untitled') {
+      const note = {
+        id: Date.now(),
+        title, content: '',
+        created: new Date().toISOString(),
+        modified: new Date().toISOString(),
+        synced: false,
+      };
+      await this.saveNote(note);
+      await this.addToSyncQueue(note.id, 'save');
+      return note;
+    }
+    async addToSyncQueue(noteId, action) {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.syncQueueStore], 'readwrite');
+        const store = transaction.objectStore(this.syncQueueStore);
+        const request = store.put({ noteId, action, timestamp: Date.now() });
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve({ noteId, action, timestamp: Date.now() });
+      });
+    }
+    async getSyncQueue() {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.syncQueueStore], 'readonly');
+        const store = transaction.objectStore(this.syncQueueStore);
+        const request = store.getAll();
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+      });
+    }
+    async removeFromSyncQueue(noteId) {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.syncQueueStore], 'readwrite');
+        const store = transaction.objectStore(this.syncQueueStore);
+        const request = store.delete(noteId);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve();
+      });
+    }
+    async markAsSynced(noteId) {
+      const note = await this.getNote(noteId);
+      if (note) { note.synced = true; await this.saveNote(note); }
+    }
+  }
 
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => resolve();
-                });
-            }
-
-            async createNote(title = 'Untitled') {
-                const note = {
-                    id: Date.now(),
-                    title,
-                    content: '',
-                    created: new Date().toISOString(),
-                    modified: new Date().toISOString(),
-                    synced: false,
-                };
-                await this.saveNote(note);
-                await this.addToSyncQueue(note.id, 'save');
-                return note;
-            }
-
-            // Sync Queue Management
-            async addToSyncQueue(noteId, action) {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.syncQueueStore], 'readwrite');
-                    const store = transaction.objectStore(this.syncQueueStore);
-                    const queueItem = {
-                        noteId,
-                        action,
-                        timestamp: Date.now(),
-                    };
-                    const request = store.put(queueItem);
-
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => resolve(queueItem);
-                });
-            }
-
-            async getSyncQueue() {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.syncQueueStore], 'readonly');
-                    const store = transaction.objectStore(this.syncQueueStore);
-                    const request = store.getAll();
-
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => resolve(request.result);
-                });
-            }
-
-            async removeFromSyncQueue(noteId) {
-                return new Promise((resolve, reject) => {
-                    const transaction = this.db.transaction([this.syncQueueStore], 'readwrite');
-                    const store = transaction.objectStore(this.syncQueueStore);
-                    const request = store.delete(noteId);
-
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => resolve();
-                });
-            }
-
-            async markAsSynced(noteId) {
-                const note = await this.getNote(noteId);
-                if (note) {
-                    note.synced = true;
-                    await this.saveNote(note);
-                }
-            }
+  /* ---------- Sync Manager (unchanged) ---------- */
+  class SyncManager {
+    constructor(db) {
+      this.db = db;
+      this.isSyncing = false;
+      this.syncInterval = null;
+    }
+    async callEdgeFunction(action, note = null, noteId = null) {
+      const functionUrl = `${SUPABASE_URL}/functions/v1/${EDGE_FUNCTION_NAME}`;
+      try {
+        const response = await fetch(functionUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, note, note_id: noteId }),
+        });
+        if (!response.ok) throw new Error(`Edge function error: ${response.statusText}`);
+        return await response.json();
+      } catch (error) {
+        console.error('Edge function call failed:', error);
+        throw error;
+      }
+    }
+    async syncNote(noteId, action) {
+      if (this.isSyncing) return;
+      this.isSyncing = true;
+      try {
+        if (action === 'save') {
+          const note = await this.db.getNote(noteId);
+          if (note) {
+            await this.callEdgeFunction('save', note);
+            await this.db.markAsSynced(noteId);
+            await this.db.removeFromSyncQueue(noteId);
+          }
+        } else if (action === 'delete') {
+          await this.callEdgeFunction('delete', null, noteId);
+          await this.db.removeFromSyncQueue(noteId);
         }
+      } catch (error) {
+        console.error(`Failed to sync note ${noteId}:`, error);
+      } finally {
+        this.isSyncing = false;
+      }
+    }
+    async processSyncQueue() {
+      const queue = await this.db.getSyncQueue();
+      for (const item of queue) {
+        await this.syncNote(item.noteId, item.action);
+      }
+      updateSyncBadge();
+    }
+    startAutoSync() {
+      this.syncInterval = setInterval(() => {
+        this.processSyncQueue().catch(console.error);
+      }, AUTO_SYNC_INTERVAL);
+    }
+    stopAutoSync() {
+      if (this.syncInterval) { clearInterval(this.syncInterval); this.syncInterval = null; }
+    }
+  }
 
-        // Sync Manager
-        class SyncManager {
-            constructor(db) {
-                this.db = db;
-                this.isSyncing = false;
-                this.syncInterval = null;
-            }
+  /* ============================================================
+   * UI Layer
+   * ============================================================ */
+  let currentNoteId = null;
+  let saveTimeout = null;
+  let deleteConfirmId = null;
+  let hasUnsavedChanges = false;
+  let searchQuery = '';
+  let allNotes = [];
 
-            async callEdgeFunction(action, note = null, noteId = null) {
-                const functionUrl = `${SUPABASE_URL}/functions/v1/${EDGE_FUNCTION_NAME}`;
+  const db = new NotesDB();
+  const syncManager = new SyncManager(db);
 
-                try {
-                    const response = await fetch(functionUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            action,
-                            note,
-                            note_id: noteId,
-                        }),
-                    });
+  const $ = (id) => document.getElementById(id);
+  const notesList = $('notesList');
+  const titleInput = $('titleInput');
+  const contentInput = $('contentInput');
+  const statusIndicator = $('statusIndicator');
+  const statusText = $('statusText');
+  const saveBtn = $('saveBtn');
+  const deleteBtn = $('deleteBtn');
+  const newNoteBtn = $('newNoteBtn');
+  const dialogOverlay = $('dialogOverlay');
+  const cancelBtn = $('cancelBtn');
+  const confirmDeleteBtn = $('confirmDeleteBtn');
+  const searchInput = $('searchInput');
+  const themeToggle = $('themeToggle');
+  const paletteOverlay = $('paletteOverlay');
+  const paletteInput = $('paletteInput');
+  const paletteList = $('paletteList');
+  const shortcutsOverlay = $('shortcutsOverlay');
+  const shortcutsLink = $('shortcutsLink');
+  const shortcutsClose = $('shortcutsClose');
+  const toastContainer = $('toastContainer');
+  const wordCountEl = $('wordCount');
+  const readTimeEl = $('readTime');
+  const metaWords = $('metaWords');
+  const metaModified = $('metaModified');
+  const syncDot = $('syncDot');
+  const syncLabel = $('syncLabel');
+  const notesCountLabel = $('notesCountLabel');
 
-                    if (!response.ok) {
-                        throw new Error(`Edge function error: ${response.statusText}`);
-                    }
+  /* ---------- Theme ---------- */
+  function getStoredTheme() {
+    try { return localStorage.getItem('aevrune-theme'); } catch { return null; }
+  }
+  function setStoredTheme(t) {
+    try { localStorage.setItem('aevrune-theme', t); } catch {}
+  }
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+  }
+  applyTheme(getStoredTheme() || 'light');
 
-                    return await response.json();
-                } catch (error) {
-                    console.error('Edge function call failed:', error);
-                    throw error;
-                }
-            }
+  themeToggle.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    setStoredTheme(next);
+  });
 
-            async syncNote(noteId, action) {
-                if (this.isSyncing) return;
+  /* ---------- Toasts ---------- */
+  function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    const icon = type === 'success'
+      ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    el.innerHTML = `${icon}<span>${msg}</span>`;
+    toastContainer.appendChild(el);
+    setTimeout(() => {
+      el.classList.add('exit');
+      setTimeout(() => el.remove(), 250);
+    }, 2400);
+  }
 
-                this.isSyncing = true;
+  /* ---------- Helpers ---------- */
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = (now - d) / 1000;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400 && now.getDate() === d.getDate()) {
+      return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+    if (diff < 604800) return d.toLocaleDateString('en-US', { weekday: 'short' });
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  function longDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function countWords(text) {
+    const t = (text || '').trim();
+    if (!t) return 0;
+    return t.split(/\s+/).length;
+  }
 
-                try {
-                    if (action === 'save') {
-                        const note = await this.db.getNote(noteId);
-                        if (note) {
-                            await this.callEdgeFunction('save', note);
-                            await this.db.markAsSynced(noteId);
-                            await this.db.removeFromSyncQueue(noteId);
-                        }
-                    } else if (action === 'delete') {
-                        await this.callEdgeFunction('delete', null, noteId);
-                        await this.db.removeFromSyncQueue(noteId);
-                    }
-                } catch (error) {
-                    console.error(`Failed to sync note ${noteId}:`, error);
-                    // Note: Item stays in sync queue for retry
-                } finally {
-                    this.isSyncing = false;
-                }
-            }
+  function updateCounters() {
+    const text = contentInput.value;
+    const words = countWords(text);
+    const read = Math.max(1, Math.round(words / 220));
+    wordCountEl.textContent = words;
+    readTimeEl.textContent = read;
+    metaWords.textContent = `${words} word${words === 1 ? '' : 's'}`;
+  }
 
-            async processSyncQueue() {
-                const queue = await this.db.getSyncQueue();
+  function updateSyncBadge() {
+    db.getSyncQueue().then(q => {
+      if (q.length > 0) {
+        syncDot.classList.add('pending');
+        syncLabel.textContent = `${q.length} pending`;
+      } else {
+        syncDot.classList.remove('pending');
+        syncLabel.textContent = 'Synced';
+      }
+    });
+  }
 
-                for (const item of queue) {
-                    await this.syncNote(item.noteId, item.action);
-                }
-            }
+  /* ---------- Skeletons ---------- */
+  function renderSkeletons(n = 4) {
+    notesList.innerHTML = '';
+    for (let i = 0; i < n; i++) {
+      const sk = document.createElement('div');
+      sk.className = 'skeleton-note';
+      sk.innerHTML = `
+        <div class="skeleton-line" style="width: ${70 - i*8}%"></div>
+        <div class="skeleton-line short"></div>
+      `;
+      notesList.appendChild(sk);
+    }
+  }
 
-            startAutoSync() {
-                this.syncInterval = setInterval(() => {
-                    this.processSyncQueue().catch(console.error);
-                }, AUTO_SYNC_INTERVAL);
-            }
+  /* ---------- Notes rendering ---------- */
+  async function loadNotes() {
+    if (!notesList.querySelector('.skeleton-note')) renderSkeletons();
+    const notes = await db.getAllNotes();
+    allNotes = notes;
 
-            stopAutoSync() {
-                if (this.syncInterval) {
-                    clearInterval(this.syncInterval);
-                    this.syncInterval = null;
-                }
-            }
+    if (notes.length === 0) {
+      const emptyNote = await db.createNote('Welcome to Aevrune');
+      notes.unshift(emptyNote);
+      allNotes = [emptyNote];
+    }
+
+    renderNotesList();
+
+    if (!currentNoteId && notes.length > 0) {
+      selectNote(notes[0].id);
+    }
+    updateSyncBadge();
+  }
+
+  function renderNotesList() {
+    const q = searchQuery.toLowerCase().trim();
+    const filtered = q
+      ? allNotes.filter(n =>
+          (n.title || '').toLowerCase().includes(q) ||
+          (n.content || '').toLowerCase().includes(q))
+      : allNotes;
+
+    notesCountLabel.textContent = `${filtered.length} ${filtered.length === 1 ? 'note' : 'notes'}`;
+
+    if (filtered.length === 0) {
+      notesList.innerHTML = `
+        <div class="empty-list">
+          <div class="empty-list-title">No matches</div>
+          <div class="empty-list-text">Nothing here fits that search. Try a different word.</div>
+        </div>`;
+      return;
+    }
+
+    notesList.innerHTML = '';
+    filtered.forEach(note => {
+      const div = document.createElement('div');
+      div.className = 'note-item';
+      div.dataset.id = note.id;
+      if (note.id === currentNoteId) div.classList.add('active');
+      if (!note.synced) div.classList.add('unsynced');
+
+      const preview = (note.content || '').replace(/[#*`_\-\[\]]/g, '').trim().slice(0, 60);
+
+      div.innerHTML = `
+        <span class="note-dot"></span>
+        <div class="note-item-content">
+          <div class="note-item-title">${escapeHtml(note.title || 'Untitled')}</div>
+          <div class="note-item-date">${formatDate(note.modified)}</div>
+        </div>
+        <button class="note-item-delete" data-delete="${note.id}" aria-label="Delete note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      `;
+
+      div.addEventListener('click', (e) => {
+        if (!e.target.closest('.note-item-delete')) {
+          selectNote(note.id);
         }
+      });
 
-        // App State
-        let currentNoteId = null;
-        let saveTimeout = null;
-        let deleteConfirmId = null;
-        let hasUnsavedChanges = false;
+      div.querySelector('.note-item-delete').addEventListener('click', (e) => {
+        e.stopPropagation();
+        showDeleteConfirmation(note.id);
+      });
 
-        const db = new NotesDB();
-        const syncManager = new SyncManager(db);
-        const notesList = document.getElementById('notesList');
-        const titleInput = document.getElementById('titleInput');
-        const contentInput = document.getElementById('contentInput');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const saveBtn = document.getElementById('saveBtn');
-        const deleteBtn = document.getElementById('deleteBtn');
-        const newNoteBtn = document.querySelector('.btn-new');
-        const dialogOverlay = document.getElementById('dialogOverlay');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      notesList.appendChild(div);
+    });
+  }
 
-        // Initialize App
-        async function init() {
-            await db.init();
-            await loadNotes();
-            syncManager.startAutoSync();
-            setupEventListeners();
-        }
+  async function selectNote(id) {
+    if (currentNoteId && hasUnsavedChanges) {
+      await saveNote(true);
+    }
+    currentNoteId = id;
+    hasUnsavedChanges = false;
+    document.querySelectorAll('.note-item').forEach(el => el.classList.remove('active'));
+    const el = document.querySelector(`[data-id="${id}"]`);
+    if (el) el.classList.add('active');
 
-        // Load and Display Notes
-        async function loadNotes() {
-            const notes = await db.getAllNotes();
-            notesList.innerHTML = '';
+    const note = await db.getNote(id);
+    if (note) {
+      titleInput.value = note.title;
+      contentInput.value = note.content;
+      metaModified.textContent = longDate(note.modified);
+      updateCounters();
+      setStatus('ready');
+    }
+  }
 
-            if (notes.length === 0) {
-                const emptyNote = await db.createNote('Welcome to Aevrune');
-                notes.unshift(emptyNote);
-            }
+  async function saveNote(silent = false) {
+    if (!currentNoteId) return;
+    setStatus('saving');
+    try {
+      const existingNote = await db.getNote(currentNoteId);
+      const note = {
+        id: currentNoteId,
+        title: titleInput.value || 'Untitled',
+        content: contentInput.value,
+        created: existingNote.created,
+        modified: new Date().toISOString(),
+        synced: false,
+      };
+      await db.saveNote(note);
+      await db.addToSyncQueue(currentNoteId, 'save');
 
-            notes.forEach(note => {
-                const noteElement = createNoteElement(note);
-                notesList.appendChild(noteElement);
-            });
+      // Update local cache
+      const idx = allNotes.findIndex(n => n.id === currentNoteId);
+      if (idx > -1) allNotes[idx] = note; else allNotes.unshift(note);
 
-            if (notes.length > 0) {
-                selectNote(notes[0].id);
-            }
-        }
+      try {
+        await syncManager.syncNote(currentNoteId, 'save');
+        setStatus('saved');
+        if (!silent) toast('Saved');
+      } catch (e) {
+        console.warn('Auto-sync failed, will retry:', e);
+        setStatus('saved');
+      }
 
-        function createNoteElement(note) {
-            const div = document.createElement('div');
-            div.className = 'note-item';
-            div.dataset.id = note.id;
+      metaModified.textContent = longDate(note.modified);
 
-            const dateStr = new Date(note.modified).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric'
-            });
+      const noteElement = document.querySelector(`[data-id="${currentNoteId}"]`);
+      if (noteElement) {
+        noteElement.querySelector('.note-item-date').textContent = formatDate(note.modified);
+        noteElement.querySelector('.note-item-title').textContent = note.title;
+        noteElement.classList.add('unsynced');
+      }
+      hasUnsavedChanges = false;
+      updateSyncBadge();
+    } catch (error) {
+      console.error('Failed to save note:', error);
+      setStatus('ready');
+      toast('Could not save', 'warn');
+    }
+  }
 
-            div.innerHTML = `
-                <div class="note-item-content">
-                    <div class="note-item-title">${note.title || 'Untitled'}</div>
-                    <div class="note-item-date">${dateStr}</div>
-                </div>
-                <button class="note-item-delete" data-delete="${note.id}">✕</button>
-            `;
+  function setStatus(status) {
+    clearTimeout(saveTimeout);
+    const setLabel = (txt) => { statusText.textContent = txt; };
+    if (status === 'ready') {
+      setLabel('Ready');
+      statusIndicator.className = 'status-indicator';
+    } else if (status === 'modified') {
+      setLabel('Modified');
+      statusIndicator.className = 'status-indicator modified';
+    } else if (status === 'saving') {
+      setLabel('Saving…');
+      statusIndicator.className = 'status-indicator saving';
+    } else if (status === 'saved') {
+      setLabel('Saved');
+      statusIndicator.className = 'status-indicator saved';
+      saveTimeout = setTimeout(() => {
+        setLabel('Ready');
+        statusIndicator.className = 'status-indicator';
+      }, 1800);
+    }
+  }
 
-            div.addEventListener('click', (e) => {
-                if (!e.target.closest('.note-item-delete')) {
-                    selectNote(note.id);
-                }
-            });
+  function showDeleteConfirmation(id) {
+    deleteConfirmId = id;
+    dialogOverlay.classList.add('active');
+  }
 
-            const deleteBtn = div.querySelector('.note-item-delete');
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showDeleteConfirmation(note.id);
-            });
+  async function confirmDelete() {
+    if (!deleteConfirmId) return;
+    try {
+      setStatus('saving');
+      await db.addToSyncQueue(deleteConfirmId, 'delete');
+      try { await syncManager.syncNote(deleteConfirmId, 'delete'); }
+      catch (e) { console.warn('Auto-sync delete failed, will retry:', e); }
 
-            return div;
-        }
+      await db.deleteNote(deleteConfirmId);
+      allNotes = allNotes.filter(n => n.id !== deleteConfirmId);
 
-        async function selectNote(id) {
-            // Save current note if there are unsaved changes
-            if (currentNoteId && hasUnsavedChanges) {
-                await saveNote();
-            }
+      dialogOverlay.classList.remove('active');
 
-            currentNoteId = id;
-            hasUnsavedChanges = false;
-            document.querySelectorAll('.note-item').forEach(el => {
-                el.classList.remove('active');
-            });
+      if (deleteConfirmId === currentNoteId) {
+        titleInput.value = '';
+        contentInput.value = '';
+        currentNoteId = null;
+        hasUnsavedChanges = false;
+      }
 
-            const noteElement = document.querySelector(`[data-id="${id}"]`);
-            if (noteElement) {
-                noteElement.classList.add('active');
-            }
+      await loadNotes();
+      setStatus('saved');
+      toast('Note deleted', 'warn');
+      deleteConfirmId = null;
+      updateSyncBadge();
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+      setStatus('ready');
+      toast('Could not delete', 'warn');
+    }
+  }
 
-            const note = await db.getNote(id);
-            if (note) {
-                titleInput.value = note.title;
-                contentInput.value = note.content;
-                setStatus('ready');
-            }
-        }
+  /* ---------- Markdown formatting ---------- */
+  const FORMATS = {
+    bold:   { wrap: '**', placeholder: 'bold' },
+    italic: { wrap: '*',  placeholder: 'italic' },
+    underline: { wrap: '__', placeholder: 'underline' },
+    code:   { wrap: '`',  placeholder: 'code' },
+  };
+  const LINE_FORMATS = {
+    h1:     { prefix: '# ',  placeholder: 'Heading 1' },
+    h2:     { prefix: '## ', placeholder: 'Heading 2' },
+    bullet: { prefix: '- ',  placeholder: 'Item' },
+    quote:  { prefix: '> ',  placeholder: 'Quote' },
+  };
 
-        async function saveNote() {
-            if (!currentNoteId) return;
+  function applyFormat(type) {
+    const ta = contentInput;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const value = ta.value;
+    const selected = value.substring(start, end);
 
-            setStatus('saving');
+    let newValue = value;
+    let newCursor = null;
 
-            try {
-                const existingNote = await db.getNote(currentNoteId);
-                const note = {
-                    id: currentNoteId,
-                    title: titleInput.value || 'Untitled',
-                    content: contentInput.value,
-                    created: existingNote.created,
-                    modified: new Date().toISOString(),
-                    synced: false,
-                };
+    if (FORMATS[type]) {
+      const { wrap, placeholder } = FORMATS[type];
+      const text = selected || placeholder;
+      const inserted = `${wrap}${text}${wrap}`;
+      newValue = value.substring(0, start) + inserted + value.substring(end);
+      newCursor = { start: start + wrap.length, end: start + wrap.length + text.length };
+    } else if (LINE_FORMATS[type]) {
+      const { prefix, placeholder } = LINE_FORMATS[type];
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const text = selected || placeholder;
+      const inserted = `${prefix}${text}`;
+      newValue = value.substring(0, lineStart) + inserted + value.substring(end);
+      newCursor = { start: lineStart + prefix.length, end: lineStart + prefix.length + text.length };
+    } else if (type === 'link') {
+      const text = selected || 'link';
+      const inserted = `[${text}](https://)`;
+      newValue = value.substring(0, start) + inserted + value.substring(end);
+      newCursor = { start: start + text.length + 3, end: start + text.length + 3 + 8 };
+    }
 
-                // Save to IndexedDB
-                await db.saveNote(note);
+    if (newCursor) {
+      ta.value = newValue;
+      ta.focus();
+      ta.setSelectionRange(newCursor.start, newCursor.end);
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
 
-                // Add to sync queue
-                await db.addToSyncQueue(currentNoteId, 'save');
+  document.querySelectorAll('.btn-toolbar').forEach(btn => {
+    btn.addEventListener('click', () => applyFormat(btn.dataset.fmt));
+  });
 
-                // Attempt immediate sync
-                try {
-                    await syncManager.syncNote(currentNoteId, 'save');
-                    setStatus('saved');
-                } catch (error) {
-                    console.warn('Auto-sync failed, will retry:', error);
-                    setStatus('saved');
-                }
+  /* ---------- Command palette ---------- */
+  const COMMANDS = [
+    { id: 'new', label: 'New note', icon: 'plus', kbd: 'Ctrl+N', run: () => createNew() },
+    { id: 'save', label: 'Save note', icon: 'save', kbd: 'Ctrl+S', run: () => saveNote() },
+    { id: 'delete', label: 'Delete current note', icon: 'trash', kbd: 'Ctrl+Shift+D', run: () => currentNoteId && showDeleteConfirmation(currentNoteId) },
+    { id: 'theme', label: 'Toggle theme', icon: 'sun', kbd: 'Ctrl+J', run: () => themeToggle.click() },
+    { id: 'shortcuts', label: 'Show shortcuts', icon: 'kb', run: () => shortcutsOverlay.classList.add('active') },
+  ];
 
-                // Update note item in sidebar
-                const noteElement = document.querySelector(`[data-id="${currentNoteId}"]`);
-                if (noteElement) {
-                    const dateStr = new Date(note.modified).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                    noteElement.querySelector('.note-item-date').textContent = dateStr;
-                    noteElement.querySelector('.note-item-title').textContent = note.title;
-                }
+  const ICONS = {
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+    save: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+    kb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>',
+    note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  };
 
-                hasUnsavedChanges = false;
-            } catch (error) {
-                console.error('Failed to save note:', error);
-                setStatus('ready');
-            }
-        }
+  let paletteSelected = 0;
+  let paletteFiltered = [];
 
-        function setStatus(status) {
-            clearTimeout(saveTimeout);
+  function openPalette() {
+    paletteOverlay.classList.add('active');
+    paletteInput.value = '';
+    refreshPalette('');
+    setTimeout(() => paletteInput.focus(), 30);
+  }
+  function closePalette() { paletteOverlay.classList.remove('active'); }
 
-            if (status === 'ready') {
-                statusIndicator.textContent = 'Ready';
-                statusIndicator.className = 'status-indicator';
-            } else if (status === 'modified') {
-                statusIndicator.textContent = 'Modified';
-                statusIndicator.className = 'status-indicator';
-            } else if (status === 'saving') {
-                statusIndicator.textContent = 'Saving...';
-                statusIndicator.className = 'status-indicator saving';
-            } else if (status === 'saved') {
-                statusIndicator.textContent = '✓ Saved';
-                statusIndicator.className = 'status-indicator saved';
-                saveTimeout = setTimeout(() => {
-                    statusIndicator.textContent = 'Ready';
-                    statusIndicator.className = 'status-indicator';
-                }, 2000);
-            }
-        }
+  function refreshPalette(query) {
+    const q = query.toLowerCase().trim();
+    paletteList.innerHTML = '';
 
-        function showDeleteConfirmation(id) {
-            deleteConfirmId = id;
-            dialogOverlay.classList.add('active');
-        }
+    const cmds = COMMANDS.filter(c => !q || c.label.toLowerCase().includes(q));
+    const notes = allNotes.filter(n => !q || (n.title || '').toLowerCase().includes(q) || (n.content || '').toLowerCase().includes(q)).slice(0, 6);
 
-        async function confirmDelete() {
-            if (deleteConfirmId) {
-                try {
-                    setStatus('saving');
+    paletteFiltered = [];
+    let html = '';
 
-                    // Add to sync queue for deletion
-                    await db.addToSyncQueue(deleteConfirmId, 'delete');
+    if (cmds.length) {
+      html += `<div class="palette-section">Commands</div>`;
+      cmds.forEach((c, i) => {
+        const sel = i === 0 ? 'selected' : '';
+        html += `
+          <div class="palette-item ${sel}" data-type="cmd" data-id="${c.id}">
+            ${ICONS[c.icon] || ICONS.note}
+            <span class="palette-item-label">${c.label}</span>
+            ${c.kbd ? `<span class="palette-item-kbd">${c.kbd}</span>` : ''}
+          </div>`;
+        paletteFiltered.push({ type: 'cmd', id: c.id });
+      });
+    }
 
-                    // Attempt immediate sync
-                    try {
-                        await syncManager.syncNote(deleteConfirmId, 'delete');
-                    } catch (error) {
-                        console.warn('Auto-sync delete failed, will retry:', error);
-                    }
+    if (notes.length) {
+      html += `<div class="palette-section">Notes</div>`;
+      notes.forEach((n, i) => {
+        const sel = (cmds.length === 0 && i === 0) ? 'selected' : '';
+        html += `
+          <div class="palette-item ${sel}" data-type="note" data-id="${n.id}">
+            ${ICONS.note}
+            <span class="palette-item-label">${escapeHtml(n.title || 'Untitled')}</span>
+            <span class="palette-item-kbd">${formatDate(n.modified)}</span>
+          </div>`;
+        paletteFiltered.push({ type: 'note', id: n.id });
+      });
+    }
 
-                    // Delete from IndexedDB
-                    await db.deleteNote(deleteConfirmId);
+    if (paletteFiltered.length === 0) {
+      html = `<div class="palette-section">Nothing found</div>
+              <div style="padding: 16px; color: var(--text-muted); font-size: 13px;">Try another word or create a new note.</div>`;
+    }
 
-                    dialogOverlay.classList.remove('active');
+    paletteList.innerHTML = html;
+    paletteSelected = 0;
 
-                    if (deleteConfirmId === currentNoteId) {
-                        titleInput.value = '';
-                        contentInput.value = '';
-                        currentNoteId = null;
-                        hasUnsavedChanges = false;
-                    }
+    paletteList.querySelectorAll('.palette-item').forEach((el, idx) => {
+      el.addEventListener('click', () => runPaletteItem(idx));
+      el.addEventListener('mouseenter', () => {
+        paletteList.querySelectorAll('.palette-item').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        paletteSelected = idx;
+      });
+    });
+  }
 
-                    await loadNotes();
-                    setStatus('saved');
-                } catch (error) {
-                    console.error('Failed to delete note:', error);
-                    setStatus('ready');
-                }
-            }
-        }
+  function runPaletteItem(idx) {
+    const item = paletteFiltered[idx];
+    if (!item) return;
+    closePalette();
+    if (item.type === 'cmd') {
+      const cmd = COMMANDS.find(c => c.id === item.id);
+      if (cmd) cmd.run();
+    } else if (item.type === 'note') {
+      selectNote(item.id);
+    }
+  }
 
-        function setupEventListeners() {
-            // New note
-            newNoteBtn.addEventListener('click', async () => {
-                const newNote = await db.createNote();
-                await loadNotes();
-                selectNote(newNote.id);
-            });
+  paletteInput.addEventListener('input', () => refreshPalette(paletteInput.value));
+  paletteInput.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      paletteSelected = Math.min(paletteSelected + 1, paletteFiltered.length - 1);
+      updatePaletteSel();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      paletteSelected = Math.max(paletteSelected - 1, 0);
+      updatePaletteSel();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      runPaletteItem(paletteSelected);
+    } else if (e.key === 'Escape') {
+      closePalette();
+    }
+  });
+  function updatePaletteSel() {
+    const items = paletteList.querySelectorAll('.palette-item');
+    items.forEach((el, i) => el.classList.toggle('selected', i === paletteSelected));
+    items[paletteSelected]?.scrollIntoView({ block: 'nearest' });
+  }
+  paletteOverlay.addEventListener('click', (e) => {
+    if (e.target === paletteOverlay) closePalette();
+  });
 
-            // Save note
-            saveBtn.addEventListener('click', saveNote);
+  /* ---------- New note ---------- */
+  async function createNew() {
+    const n = await db.createNote();
+    allNotes.unshift(n);
+    renderNotesList();
+    selectNote(n.id);
+    titleInput.focus();
+    titleInput.select();
+    updateSyncBadge();
+  }
+  newNoteBtn.addEventListener('click', createNew);
+  saveBtn.addEventListener('click', () => saveNote());
+  deleteBtn.addEventListener('click', () => {
+    if (currentNoteId) showDeleteConfirmation(currentNoteId);
+  });
 
-            // Content input changes
-            contentInput.addEventListener('input', () => {
-                hasUnsavedChanges = true;
-                setStatus('modified');
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(saveNote, 1000);
-            });
+  /* ---------- Inputs ---------- */
+  contentInput.addEventListener('input', () => {
+    hasUnsavedChanges = true;
+    setStatus('modified');
+    updateCounters();
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveNote(true), 1100);
+  });
+  titleInput.addEventListener('input', () => {
+    hasUnsavedChanges = true;
+    setStatus('modified');
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveNote(true), 1100);
+  });
 
-            // Title input changes
-            titleInput.addEventListener('input', () => {
-                hasUnsavedChanges = true;
-                setStatus('modified');
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(saveNote, 1000);
-            });
+  /* ---------- Search ---------- */
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    renderNotesList();
+  });
 
-            // Keyboard shortcuts
-            document.addEventListener('keydown', (e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-                    e.preventDefault();
-                    saveNote();
-                }
+  /* ---------- Dialog ---------- */
+  cancelBtn.addEventListener('click', () => {
+    dialogOverlay.classList.remove('active');
+    deleteConfirmId = null;
+  });
+  confirmDeleteBtn.addEventListener('click', confirmDelete);
+  dialogOverlay.addEventListener('click', (e) => {
+    if (e.target === dialogOverlay) {
+      dialogOverlay.classList.remove('active');
+      deleteConfirmId = null;
+    }
+  });
 
-                if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'd') {
-                    e.preventDefault();
-                    if (currentNoteId) {
-                        showDeleteConfirmation(currentNoteId);
-                    }
-                }
-            });
+  /* ---------- Shortcuts ---------- */
+  shortcutsLink.addEventListener('click', () => shortcutsOverlay.classList.add('active'));
+  shortcutsClose.addEventListener('click', () => shortcutsOverlay.classList.remove('active'));
+  shortcutsOverlay.addEventListener('click', (e) => {
+    if (e.target === shortcutsOverlay) shortcutsOverlay.classList.remove('active');
+  });
 
-            // Delete button
-            deleteBtn.addEventListener('click', () => {
-                if (currentNoteId) {
-                    showDeleteConfirmation(currentNoteId);
-                }
-            });
+  /* ---------- Keyboard ---------- */
+  document.addEventListener('keydown', (e) => {
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && e.key.toLowerCase() === 's') {
+      e.preventDefault(); saveNote();
+    } else if (mod && e.shiftKey && e.key.toLowerCase() === 'd') {
+      e.preventDefault();
+      if (currentNoteId) showDeleteConfirmation(currentNoteId);
+    } else if (mod && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      paletteOverlay.classList.contains('active') ? closePalette() : openPalette();
+    } else if (mod && e.key.toLowerCase() === 'n') {
+      e.preventDefault(); createNew();
+    } else if (mod && e.key.toLowerCase() === 'j') {
+      e.preventDefault(); themeToggle.click();
+    } else if (mod && e.key.toLowerCase() === 'b') {
+      e.preventDefault(); applyFormat('bold');
+    } else if (mod && e.key.toLowerCase() === 'i') {
+      e.preventDefault(); applyFormat('italic');
+    } else if (mod && e.key.toLowerCase() === 'l') {
+      e.preventDefault(); applyFormat('link');
+    } else if (e.key === 'Escape') {
+      dialogOverlay.classList.remove('active');
+      shortcutsOverlay.classList.remove('active');
+      closePalette();
+      deleteConfirmId = null;
+    }
+  });
 
-            // Dialog buttons
-            cancelBtn.addEventListener('click', () => {
-                dialogOverlay.classList.remove('active');
-                deleteConfirmId = null;
-            });
+  /* ---------- Init ---------- */
+  async function init() {
+    await db.init();
+    await loadNotes();
+    syncManager.startAutoSync();
+    setInterval(updateSyncBadge, 8000);
+  }
+  init().catch(console.error);
 
-            confirmDeleteBtn.addEventListener('click', confirmDelete);
-
-            dialogOverlay.addEventListener('click', (e) => {
-                if (e.target === dialogOverlay) {
-                    dialogOverlay.classList.remove('active');
-                    deleteConfirmId = null;
-                }
-            });
-
-            // Toolbar buttons
-            document.querySelectorAll('.btn-toolbar').forEach((btn, index) => {
-                btn.addEventListener('click', () => {
-                    const textarea = contentInput;
-                    const start = textarea.selectionStart;
-                    const end = textarea.selectionEnd;
-                    const selected = textarea.value.substring(start, end);
-
-                    let formatted = '';
-                    switch(index) {
-                        case 0: // Bold
-                            formatted = `**${selected || 'bold'}**`;
-                            break;
-                        case 1: // Italic
-                            formatted = `*${selected || 'italic'}*`;
-                            break;
-                        case 2: // Underline
-                            formatted = `__${selected || 'underline'}__`;
-                            break;
-                        case 3: // H1
-                            formatted = `# ${selected || 'Heading 1'}`;
-                            break;
-                        case 4: // H2
-                            formatted = `## ${selected || 'Heading 2'}`;
-                            break;
-                        case 5: // Bullet
-                            formatted = `- ${selected || 'Item'}`;
-                            break;
-                        case 6: // Link
-                            formatted = `[${selected || 'link'}](url)`;
-                            break;
-                        case 7: // Code
-                            formatted = `\`${selected || 'code'}\``;
-                            break;
-                    }
-
-                    if (formatted) {
-                        textarea.value = textarea.value.substring(0, start) + formatted + textarea.value.substring(end);
-                        textarea.selectionStart = start + formatted.length;
-                        textarea.selectionEnd = start + formatted.length;
-                        textarea.focus();
-
-                        const event = new Event('input', { bubbles: true });
-                        textarea.dispatchEvent(event);
-                    }
-                });
-            });
-
-            // Clean up on page unload
-            window.addEventListener('beforeunload', async (e) => {
-                if (hasUnsavedChanges) {
-                    await saveNote();
-                }
-            });
-        }
-
-        // Start the app
-        init().catch(console.error);
-    </script>
+  window.addEventListener('beforeunload', async () => {
+    if (hasUnsavedChanges) {
+      await saveNote(true);
+    }
+  });
+</script>
 </body>
 </html>
