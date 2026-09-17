@@ -12,23 +12,23 @@
 
   :root {
     /* Light Mode — Pure White Main & Wood Surround */
-    --bg: #FFFFFF; /* Pure white for the editor main area */
-    --surface: #F7F3EE; /* Warm cream/brown tint for the sidebar surround */
-    --surface-2: #EFE9E1; /* Slightly deeper cream for hover/active states */
-    --text: #18120E; /* Dark bark text */
+    --bg: #FFFFFF;
+    --surface: #F7F3EE;
+    --surface-2: #EFE9E1;
+    --text: #18120E;
     --text-soft: #4A4036;
     --text-muted: #8C8175;
-    --border: #E5DDD3; /* Subtle borders for sidebar */
-    --molding: #1A1A1A; /* Obsidian lines - deep structural black */
-    --accent: #9C5A3C; /* Polished Cedar/Cherry Wood */
-    --accent-hover: #7A442C; /* Deeper wood grain */
-    --accent-soft: #F5E9E1; /* Warm wood glow background */
+    --border: #E5DDD3;
+    --molding: #1A1A1A;
+    --accent: #9C5A3C;
+    --accent-hover: #7A442C;
+    --accent-soft: #F5E9E1;
     --success: #5F7A3A;
-    --warn: #B08832; /* Light mode yellow for modified */
+    --warn: #B08832;
     --danger: #A23B2A;
     --shadow-soft: 0 8px 24px rgba(34, 24, 16, 0.08);
     --shadow-md: 0 4px 12px rgba(34, 24, 16, 0.05);
-    --radius: 4px; /* Sharp, architectural */
+    --radius: 4px;
     --radius-lg: 8px;
     --t: 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
     --serif: 'DM Serif Display', Georgia, serif;
@@ -37,19 +37,19 @@
 
   html[data-theme="dark"] {
     /* Dark Mode — Pure Black Main & Golden Yellow */
-    --bg: #000000; /* Pure black for the editor main area */
-    --surface: #0F0F0F; /* Obsidian surround */
-    --surface-2: #1A1A1A; /* Dark grey for hover/active states */
+    --bg: #000000;
+    --surface: #0F0F0F;
+    --surface-2: #1A1A1A;
     --text: #F5F5F5;
     --text-soft: #B5B5B5;
     --text-muted: #6B6B6B;
-    --border: #1F1F1F; /* Subtle borders for sidebar */
-    --molding: #E0B450; /* Golden yellow lines */
-    --accent: #E0B450; /* Golden yellow accent */
-    --accent-hover: #FFCB66; /* Brighter yellow on hover */
-    --accent-soft: #2A2410; /* Dark yellow tint for hover */
+    --border: #1F1F1F;
+    --molding: #E0B450;
+    --accent: #E0B450;
+    --accent-hover: #FFCB66;
+    --accent-soft: #2A2410;
     --success: #7AB560;
-    --warn: #E0B450; /* Dark mode yellow for modified */
+    --warn: #E0B450;
     --danger: #D97060;
     --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.6);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -65,18 +65,200 @@
   }
 
   body {
-    background: var(--surface); /* The surround takes the cream/obsidian tone */
+    background: var(--surface);
     transition: background 0.4s ease, color 0.4s ease;
   }
 
-  /* ========== Layout ========== */
+  /* ============================================================
+     LOGIN SCREEN (UniClvrPass, restyled for Aevrune)
+     ============================================================ */
+  .login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 2000;
+    transition: background 0.4s ease, opacity 0.4s ease;
+  }
+  .login-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .login-shell {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    padding: 56px 48px 40px;
+    position: relative;
+    animation: loginRise 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes loginRise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .login-theme-toggle {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 32px; height: 32px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text-soft);
+    display: grid; place-items: center;
+    transition: var(--t);
+  }
+  .login-theme-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .login-theme-toggle svg { width: 14px; height: 14px; }
+
+  .login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .login-glyph {
+    font-family: var(--serif);
+    font-size: 56px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .login-name {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .login-tagline {
+    text-align: center;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid var(--molding);
+  }
+
+  .login-form-group {
+    margin-bottom: 24px;
+  }
+  .login-form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .login-form-group input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    outline: none;
+    transition: var(--t);
+  }
+  .login-form-group input::placeholder { color: var(--text-muted); }
+  .login-form-group input:focus { border-bottom-color: var(--accent); }
+
+  .login-button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 36px;
+  }
+  .btn-auth {
+    flex: 1;
+    padding: 12px 16px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--t);
+    border: 1px solid transparent;
+  }
+  .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-auth-primary {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .btn-auth-primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+  .btn-auth-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .btn-auth-secondary:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .login-message {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 12px;
+    min-height: 18px;
+    color: var(--text-muted);
+    transition: color 0.2s ease;
+  }
+  .login-message.error { color: var(--danger); }
+  .login-message.success { color: var(--success); }
+  .login-message.loading { color: var(--accent); }
+
+  .login-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .powered-by {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+  }
+  .powered-by .uniclvrpass {
+    font-weight: 600;
+    color: var(--text-soft);
+    letter-spacing: 0.06em;
+  }
+
+  /* ============================================================
+     APP LAYOUT
+     ============================================================ */
   .app {
     display: grid;
     grid-template-columns: 300px 1fr;
     height: 100vh;
   }
 
-  /* ========== Sidebar ========== */
   .sidebar {
     background: var(--surface);
     border-right: 1px solid var(--border);
@@ -92,11 +274,7 @@
     justify-content: space-between;
     align-items: center;
   }
-  .brand {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
   .brand-glyph {
     font-family: var(--serif);
     font-size: 24px;
@@ -129,9 +307,7 @@
   }
   .theme-toggle svg { width: 14px; height: 14px; }
 
-  .sidebar-search {
-    padding: 0 24px 16px;
-  }
+  .sidebar-search { padding: 0 24px 16px; }
   .search-input {
     width: 100%;
     background: transparent;
@@ -152,7 +328,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid var(--molding); /* Obsidian/Yellow line under Notes */
+    border-bottom: 2px solid var(--molding);
   }
   .sidebar-title {
     font-size: 11px;
@@ -174,10 +350,7 @@
   .btn-new:hover { background: var(--accent-hover); transform: translateY(-1px); }
   .btn-new svg { width: 14px; height: 14px; }
 
-  .notes-list {
-    flex: 1;
-    overflow-y: auto;
-  }
+  .notes-list { flex: 1; overflow-y: auto; }
   .notes-list::-webkit-scrollbar { width: 4px; }
   .notes-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   .notes-list::-webkit-scrollbar-track { background: transparent; }
@@ -211,9 +384,7 @@
   .note-item.active .note-dot { background: var(--accent); }
   .note-item.unsynced .note-dot { background: var(--warn); }
 
-  .note-item-content {
-    flex: 1; min-width: 0;
-  }
+  .note-item-content { flex: 1; min-width: 0; }
   .note-item-title {
     font-size: 14px;
     font-weight: 500;
@@ -244,17 +415,20 @@
   .note-item-delete svg { width: 14px; height: 14px; }
 
   .sidebar-footer {
-    padding: 16px 24px;
-    border-top: 2px solid var(--molding); /* Obsidian/Yellow line above Synced */
+    padding: 14px 24px;
+    border-top: 2px solid var(--molding);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 10px;
     font-size: 11px;
     color: var(--text-muted);
   }
-  .sync-status {
-    display: flex; align-items: center; gap: 6px;
+  .footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
+  .sync-status { display: flex; align-items: center; gap: 6px; }
   .footer-stat-dot {
     width: 6px; height: 6px;
     border-radius: 50%;
@@ -268,6 +442,23 @@
     color: var(--text-muted);
   }
   .footer-link:hover { color: var(--accent); }
+  .footer-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-soft);
+    font-weight: 500;
+  }
+  .footer-user .user-glyph {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg);
+    display: grid; place-items: center;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
 
   /* ========== Editor ========== */
   .editor-area {
@@ -275,10 +466,9 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    background: var(--bg); /* The main writing area is pure white/black */
+    background: var(--bg);
   }
 
-  /* Glass top bar */
   .editor-top-bar {
     position: absolute;
     top: 0; left: 0; right: 0;
@@ -287,7 +477,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 32px;
-    background: var(--bg); /* Match the pure white/black background */
+    background: var(--bg);
     z-index: 10;
     border-bottom: 1px solid var(--border);
   }
@@ -318,10 +508,7 @@
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
-  .editor-actions {
-    display: flex;
-    gap: 8px;
-  }
+  .editor-actions { display: flex; gap: 8px; }
   .btn-action {
     height: 32px;
     padding: 0 12px;
@@ -348,15 +535,14 @@
     color: var(--danger);
   }
 
-  /* The Writing Room */
   .editor-scroll {
     flex: 1;
     overflow-y: auto;
-    padding-top: 56px; /* space for top bar */
+    padding-top: 56px;
   }
   .editor-scroll::-webkit-scrollbar { width: 8px; }
   .editor-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-  
+
   .editor-inner {
     max-width: 720px;
     margin: 0 auto;
@@ -388,7 +574,7 @@
     letter-spacing: 0.1em;
     margin-bottom: 48px;
     padding-bottom: 20px;
-    border-bottom: 2px solid var(--molding); /* Obsidian/Yellow line under Untitled/meta */
+    border-bottom: 2px solid var(--molding);
   }
   .editor-meta .dot {
     width: 3px; height: 3px;
@@ -410,7 +596,6 @@
   }
   .textarea::placeholder { color: var(--text-muted); }
 
-  /* Floating Console (Toolbar + Counter) */
   .editor-bottom-bar {
     position: absolute;
     bottom: 0; left: 0; right: 0;
@@ -425,7 +610,7 @@
   .editor-toolbar {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius); /* Sharp rectangle instead of pill */
+    border-radius: var(--radius);
     padding: 4px;
     display: flex;
     gap: 2px;
@@ -452,10 +637,7 @@
     font-size: 14px;
     transition: var(--t);
   }
-  .btn-toolbar:hover {
-    background: var(--surface-2);
-    color: var(--accent);
-  }
+  .btn-toolbar:hover { background: var(--surface-2); color: var(--accent); }
   .btn-toolbar .serif { font-family: var(--serif); font-weight: 400; }
   .btn-toolbar svg { width: 14px; height: 14px; }
 
@@ -475,13 +657,10 @@
     box-shadow: var(--shadow-md);
   }
   .counter strong { color: var(--text); font-weight: 600; }
-  .counter-sep { color: var(--text-faint); }
+  .counter-sep { color: var(--text-muted); }
 
-  /* ========== Skeletons ========== */
-  .skeleton-note {
-    padding: 16px 24px;
-    border-bottom: 1px solid var(--border);
-  }
+  /* Skeletons */
+  .skeleton-note { padding: 16px 24px; border-bottom: 1px solid var(--border); }
   .skeleton-line {
     height: 12px;
     background: var(--surface-2);
@@ -491,12 +670,10 @@
   }
   .skeleton-line.short { width: 40%; }
   @keyframes shimmer {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
+    0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; }
   }
 
-  /* ========== Dialog & Overlays ========== */
+  /* Dialogs */
   .dialog-overlay, .palette-overlay, .shortcuts-overlay {
     position: fixed; inset: 0;
     background: rgba(0, 0, 0, 0.4);
@@ -510,8 +687,7 @@
     transition: opacity 0.2s ease;
   }
   .dialog-overlay.active, .palette-overlay.active, .shortcuts-overlay.active {
-    display: flex;
-    opacity: 1;
+    display: flex; opacity: 1;
   }
 
   .dialog-box, .palette, .shortcuts-box {
@@ -530,7 +706,6 @@
     transform: translateY(0);
   }
 
-  /* Delete Dialog */
   .dialog-box { padding: 32px; max-width: 420px; }
   .dialog-icon {
     width: 40px; height: 40px;
@@ -553,11 +728,7 @@
     line-height: 1.6;
     margin-bottom: 24px;
   }
-  .dialog-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
+  .dialog-actions { display: flex; gap: 8px; justify-content: flex-end; }
   .btn-primary {
     padding: 10px 16px;
     border-radius: var(--radius);
@@ -578,12 +749,7 @@
   }
   .btn-primary.destructive:hover { opacity: 0.9; }
 
-  /* Command Palette */
-  .palette {
-    max-width: 560px;
-    overflow: hidden;
-    margin-top: 10vh;
-  }
+  .palette { max-width: 560px; overflow: hidden; margin-top: 10vh; }
   .palette-input-wrap {
     padding: 16px;
     border-bottom: 1px solid var(--border);
@@ -602,11 +768,7 @@
     font-size: 16px;
     color: var(--text);
   }
-  .palette-list {
-    max-height: 320px;
-    overflow-y: auto;
-    padding: 8px;
-  }
+  .palette-list { max-height: 320px; overflow-y: auto; padding: 8px; }
   .palette-section {
     padding: 8px 12px 4px;
     font-size: 10px;
@@ -625,22 +787,12 @@
     color: var(--text);
     transition: background 0.15s;
   }
-  .palette-item.selected {
-    background: var(--accent-soft);
-    color: var(--accent);
-  }
+  .palette-item.selected { background: var(--accent-soft); color: var(--accent); }
   .palette-item svg { width: 16px; height: 16px; color: inherit; }
   .palette-item-label { flex: 1; font-size: 14px; }
-  .palette-item-kbd {
-    font-size: 11px;
-    color: var(--text-muted);
-  }
+  .palette-item-kbd { font-size: 11px; color: var(--text-muted); }
 
-  /* Shortcuts */
-  .shortcuts-box {
-    max-width: 480px;
-    padding: 32px;
-  }
+  .shortcuts-box { max-width: 480px; padding: 32px; }
   .shortcuts-title {
     font-family: var(--serif);
     font-size: 28px;
@@ -648,11 +800,7 @@
     padding-bottom: 16px;
     border-bottom: 1px solid var(--border);
   }
-  .shortcuts-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+  .shortcuts-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .shortcut {
     display: flex;
     justify-content: space-between;
@@ -686,11 +834,11 @@
   }
   .shortcuts-close:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 
-  /* ========== Toast ========== */
+  /* Toast */
   .toast-container {
     position: fixed;
-    bottom: 90px; /* sits above the floating toolbar */
-    left: calc(50% + 150px); /* offset to center in the editor space */
+    bottom: 90px;
+    left: calc(50% + 150px);
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
@@ -721,27 +869,17 @@
     from { transform: translateY(10px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
   }
-  @keyframes slideOut {
-    to { transform: translateY(10px); opacity: 0; }
-  }
+  @keyframes slideOut { to { transform: translateY(10px); opacity: 0; } }
 
-  /* ========== Empty State ========== */
-  .empty-list {
-    padding: 40px 24px;
-    text-align: center;
-    color: var(--text-muted);
-  }
+  .empty-list { padding: 40px 24px; text-align: center; color: var(--text-muted); }
   .empty-list-title {
     font-family: var(--serif);
     font-size: 18px;
     color: var(--text-soft);
     margin-bottom: 8px;
   }
-  .empty-list-text {
-    font-size: 12px;
-  }
+  .empty-list-text { font-size: 12px; }
 
-  /* ========== Reduced motion ========== */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -749,25 +887,60 @@
     }
   }
 
-  /* ========== Responsive ========== */
   @media (max-width: 860px) {
-    .app {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto 1fr;
-    }
+    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .sidebar { height: 40vh; border-right: none; border-bottom: 2px solid var(--molding); }
     .editor-inner { padding: 40px 24px 140px; }
     .editor-title-input { font-size: 32px; }
     .toast-container { left: 50%; }
     .counter { display: none; }
     .shortcuts-list { grid-template-columns: 1fr; }
+    .login-shell { padding: 48px 28px 32px; }
   }
 </style>
 </head>
 <body>
 
-<div class="app">
-  <!-- ============ Sidebar ============ -->
+<!-- ============ LOGIN SCREEN (UniClvrPass gateway) ============ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-shell">
+    <button class="login-theme-toggle" id="loginThemeToggle" title="Toggle theme">
+      <svg id="loginThemeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+
+    <div class="login-brand">
+      <div class="login-glyph">Æ</div>
+      <div class="login-name">Aevrune</div>
+    </div>
+    <div class="login-tagline">A place to write</div>
+
+    <form id="authForm">
+      <div class="login-form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="enter username" required autocomplete="off" />
+      </div>
+
+      <div class="login-form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="enter password" required autocomplete="off" />
+      </div>
+
+      <div class="login-button-group">
+        <button type="button" class="btn-auth btn-auth-primary" id="registerBtn">Register</button>
+        <button type="button" class="btn-auth btn-auth-secondary" id="loginBtn">Login</button>
+      </div>
+
+      <div class="login-message" id="message"></div>
+    </form>
+
+    <div class="login-footer">
+      <div class="powered-by">powered by <span class="uniclvrpass">UniClvrPass</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="aevruneApp" style="display:none;">
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="brand">
@@ -795,15 +968,23 @@
     <div class="notes-list" id="notesList"></div>
 
     <div class="sidebar-footer">
-      <div class="sync-status">
-        <span class="footer-stat-dot" id="syncDot"></span>
-        <span id="syncLabel">Synced</span>
+      <div class="footer-row">
+        <div class="sync-status">
+          <span class="footer-stat-dot" id="syncDot"></span>
+          <span id="syncLabel">Synced</span>
+        </div>
+        <a class="footer-link" id="shortcutsLink">Shortcuts</a>
       </div>
-      <a class="footer-link" id="shortcutsLink">Shortcuts</a>
+      <div class="footer-row">
+        <div class="footer-user">
+          <span class="user-glyph" id="userGlyph">U</span>
+          <span id="footerUsername">user</span>
+        </div>
+        <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
+      </div>
     </div>
   </aside>
 
-  <!-- ============ Editor ============ -->
   <main class="editor-area">
     <div class="editor-top-bar">
       <div class="status-indicator" id="statusIndicator">
@@ -928,18 +1109,152 @@
   </div>
 </div>
 
-<!-- Toasts -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script type="module">
   /* ============================================================
-   * Aevrune — UI layer (Backend preserved exactly)
+   * Aevrune — front door is UniClvrPass
    * ============================================================ */
 
-  // Configuration (unchanged)
   const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
   const EDGE_FUNCTION_NAME = 'sync-notes';
   const AUTO_SYNC_INTERVAL = 5000;
+
+  // UniClvrPass auth endpoint
+  const AUTH_API_URL = 'https://lbujqhnadkwqgojbhalw.supabase.co/functions/v1/auth';
+
+  /* ---------- Auth / Session ---------- */
+  function getStoredSession() {
+    try {
+      const userId = localStorage.getItem('userId');
+      const username = localStorage.getItem('username');
+      if (userId && username) return { userId, username };
+    } catch {}
+    return null;
+  }
+  function clearSession() {
+    try {
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+    } catch {}
+  }
+
+  /* ---------- Theme (shared across login + app) ---------- */
+  const SUN_ICON = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>`;
+  const MOON_ICON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+  const themeIcon = document.getElementById('themeIcon');
+  const loginThemeIcon = document.getElementById('loginThemeIcon');
+  const themeToggle = document.getElementById('themeToggle');
+  const loginThemeToggle = document.getElementById('loginThemeToggle');
+
+  function getStoredTheme() {
+    try { return localStorage.getItem('aevrune-theme'); } catch { return null; }
+  }
+  function setStoredTheme(t) {
+    try { localStorage.setItem('aevrune-theme', t); } catch {}
+  }
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    if (themeIcon) themeIcon.innerHTML = t === 'dark' ? MOON_ICON : SUN_ICON;
+    if (loginThemeIcon) loginThemeIcon.innerHTML = t === 'dark' ? MOON_ICON : SUN_ICON;
+  }
+  applyTheme(getStoredTheme() || 'light');
+
+  function toggleTheme() {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    setStoredTheme(next);
+  }
+  themeToggle?.addEventListener('click', toggleTheme);
+  loginThemeToggle?.addEventListener('click', toggleTheme);
+
+  /* ---------- Login Screen Logic ---------- */
+  const loginScreen = document.getElementById('loginScreen');
+  const aevruneApp = document.getElementById('aevruneApp');
+  const messageEl = document.getElementById('message');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const registerBtn = document.getElementById('registerBtn');
+  const loginBtn = document.getElementById('loginBtn');
+
+  function showLoginMessage(text, type = 'error') {
+    messageEl.textContent = text;
+    messageEl.className = `login-message ${type}`;
+  }
+  function clearLoginMessage() {
+    messageEl.textContent = '';
+    messageEl.className = 'login-message';
+  }
+
+  function enterApp() {
+    loginScreen.classList.add('hidden');
+    aevruneApp.style.display = 'grid';
+    // Init the editor / data layer
+    initAevrune();
+  }
+
+  function showLogin() {
+    aevruneApp.style.display = 'none';
+    loginScreen.classList.remove('hidden');
+    usernameInput.value = '';
+    passwordInput.value = '';
+    clearLoginMessage();
+    setTimeout(() => usernameInput.focus(), 100);
+  }
+
+  async function auth(action) {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (!username || !password) {
+      showLoginMessage('Please enter username and password');
+      return;
+    }
+
+    showLoginMessage('Processing...', 'loading');
+    registerBtn.disabled = true;
+    loginBtn.disabled = true;
+
+    try {
+      const response = await fetch(AUTH_API_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showLoginMessage(`HTTP ${response.status}: ${data.error || 'Server error'}`);
+        return;
+      }
+
+      if (data.success) {
+        showLoginMessage(
+          action === 'register' ? 'Account created — welcome to Aevrune' : 'Welcome back to Aevrune',
+          'success'
+        );
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('username', data.username);
+        setTimeout(enterApp, 700);
+      } else {
+        showLoginMessage(data.error || 'Authentication failed');
+      }
+    } catch (error) {
+      showLoginMessage('Error: ' + error.message);
+    } finally {
+      registerBtn.disabled = false;
+      loginBtn.disabled = false;
+    }
+  }
+
+  registerBtn.addEventListener('click', (e) => { e.preventDefault(); auth('register'); });
+  loginBtn.addEventListener('click', (e) => { e.preventDefault(); auth('login'); });
+  document.getElementById('authForm').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); auth('login'); }
+  });
 
   /* ---------- IndexedDB (unchanged) ---------- */
   class NotesDB {
@@ -1049,7 +1364,6 @@
     }
   }
 
-  /* ---------- Sync Manager (unchanged) ---------- */
   class SyncManager {
     constructor(db) {
       this.db = db;
@@ -1110,7 +1424,7 @@
   }
 
   /* ============================================================
-   * UI Layer
+   * Aevrune UI Layer
    * ============================================================ */
   let currentNoteId = null;
   let saveTimeout = null;
@@ -1118,6 +1432,7 @@
   let hasUnsavedChanges = false;
   let searchQuery = '';
   let allNotes = [];
+  let aevruneInitialized = false;
 
   const db = new NotesDB();
   const syncManager = new SyncManager(db);
@@ -1135,8 +1450,6 @@
   const cancelBtn = $('cancelBtn');
   const confirmDeleteBtn = $('confirmDeleteBtn');
   const searchInput = $('searchInput');
-  const themeToggle = $('themeToggle');
-  const themeIcon = $('themeIcon');
   const paletteOverlay = $('paletteOverlay');
   const paletteInput = $('paletteInput');
   const paletteList = $('paletteList');
@@ -1151,29 +1464,9 @@
   const syncDot = $('syncDot');
   const syncLabel = $('syncLabel');
   const notesCountLabel = $('notesCountLabel');
-
-  // SVG Icons for theme toggle
-  const SUN_ICON = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>`;
-  const MOON_ICON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-
-  /* ---------- Theme ---------- */
-  function getStoredTheme() {
-    try { return localStorage.getItem('aevrune-theme'); } catch { return null; }
-  }
-  function setStoredTheme(t) {
-    try { localStorage.setItem('aevrune-theme', t); } catch {}
-  }
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    themeIcon.innerHTML = t === 'dark' ? MOON_ICON : SUN_ICON;
-  }
-  applyTheme(getStoredTheme() || 'light');
-
-  themeToggle.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(next);
-    setStoredTheme(next);
-  });
+  const logoutLink = $('logoutLink');
+  const footerUsername = $('footerUsername');
+  const userGlyph = $('userGlyph');
 
   /* ---------- Toasts ---------- */
   function toast(msg, type = 'success') {
@@ -1190,7 +1483,6 @@
     }, 2400);
   }
 
-  /* ---------- Helpers ---------- */
   function formatDate(iso) {
     const d = new Date(iso);
     const now = new Date();
@@ -1237,7 +1529,6 @@
     });
   }
 
-  /* ---------- Skeletons ---------- */
   function renderSkeletons(n = 4) {
     notesList.innerHTML = '';
     for (let i = 0; i < n; i++) {
@@ -1251,7 +1542,6 @@
     }
   }
 
-  /* ---------- Notes rendering ---------- */
   async function loadNotes() {
     if (!notesList.querySelector('.skeleton-note')) renderSkeletons();
     const notes = await db.getAllNotes();
@@ -1365,7 +1655,6 @@
       await db.saveNote(note);
       await db.addToSyncQueue(currentNoteId, 'save');
 
-      // Update local cache
       const idx = allNotes.findIndex(n => n.id === currentNoteId);
       if (idx > -1) allNotes[idx] = note; else allNotes.unshift(note);
 
@@ -1517,6 +1806,7 @@
     { id: 'delete', label: 'Delete current note', icon: 'trash', kbd: 'Ctrl+Shift+D', run: () => currentNoteId && showDeleteConfirmation(currentNoteId) },
     { id: 'theme', label: 'Toggle theme', icon: 'sun', kbd: 'Ctrl+J', run: () => themeToggle.click() },
     { id: 'shortcuts', label: 'Show shortcuts', icon: 'kb', run: () => shortcutsOverlay.classList.add('active') },
+    { id: 'logout', label: 'Sign out', icon: 'logout', run: () => doLogout() },
   ];
 
   const ICONS = {
@@ -1526,6 +1816,7 @@
     sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
     kb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M7 16h10"/></svg>',
     note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
   };
 
   let paletteSelected = 0;
@@ -1633,7 +1924,6 @@
     if (e.target === paletteOverlay) closePalette();
   });
 
-  /* ---------- New note ---------- */
   async function createNew() {
     const n = await db.createNote();
     allNotes.unshift(n);
@@ -1649,7 +1939,6 @@
     if (currentNoteId) showDeleteConfirmation(currentNoteId);
   });
 
-  /* ---------- Inputs ---------- */
   contentInput.addEventListener('input', () => {
     hasUnsavedChanges = true;
     setStatus('modified');
@@ -1664,13 +1953,11 @@
     saveTimeout = setTimeout(() => saveNote(true), 1100);
   });
 
-  /* ---------- Search ---------- */
   searchInput.addEventListener('input', () => {
     searchQuery = searchInput.value;
     renderNotesList();
   });
 
-  /* ---------- Dialog ---------- */
   cancelBtn.addEventListener('click', () => {
     dialogOverlay.classList.remove('active');
     deleteConfirmId = null;
@@ -1683,12 +1970,30 @@
     }
   });
 
-  /* ---------- Shortcuts ---------- */
   shortcutsLink.addEventListener('click', () => shortcutsOverlay.classList.add('active'));
   shortcutsClose.addEventListener('click', () => shortcutsOverlay.classList.remove('active'));
   shortcutsOverlay.addEventListener('click', (e) => {
     if (e.target === shortcutsOverlay) shortcutsOverlay.classList.remove('active');
   });
+
+  /* ---------- Logout ---------- */
+  function doLogout() {
+    if (hasUnsavedChanges) {
+      saveNote(true).finally(() => {
+        syncManager.stopAutoSync?.();
+        clearSession();
+        currentNoteId = null;
+        hasUnsavedChanges = false;
+        showLogin();
+      });
+    } else {
+      syncManager.stopAutoSync?.();
+      clearSession();
+      currentNoteId = null;
+      showLogin();
+    }
+  }
+  logoutLink.addEventListener('click', doLogout);
 
   /* ---------- Keyboard ---------- */
   document.addEventListener('keydown', (e) => {
@@ -1720,19 +2025,38 @@
   });
 
   /* ---------- Init ---------- */
-  async function init() {
+  async function initAevrune() {
+    if (aevruneInitialized) return;
+    aevruneInitialized = true;
+
+    // Show username in footer
+    const session = getStoredSession();
+    if (session) {
+      footerUsername.textContent = session.username;
+      userGlyph.textContent = session.username.charAt(0).toUpperCase();
+    }
+
     await db.init();
     await loadNotes();
     syncManager.startAutoSync();
     setInterval(updateSyncBadge, 8000);
   }
-  init().catch(console.error);
 
   window.addEventListener('beforeunload', async () => {
     if (hasUnsavedChanges) {
       await saveNote(true);
     }
   });
+
+  /* ---------- Boot: pick door ---------- */
+  (function boot() {
+    const session = getStoredSession();
+    if (session) {
+      enterApp();
+    } else {
+      showLogin();
+    }
+  })();
 </script>
 </body>
 </html>
