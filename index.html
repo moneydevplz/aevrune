@@ -1327,7 +1327,7 @@
     }
     async createNote(title = 'Untitled') {
       const note = {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         title, content: '',
         created: new Date().toISOString(),
         modified: new Date().toISOString(),
@@ -1485,6 +1485,10 @@
   let allNotes = [];
   let aevruneInitialized = false;
 
+  // Throttle save timing: save every 5s while typing, final save 5s after typing stops.
+  let typingSaveInterval = null;
+  const SAVE_INTERVAL_MS = 5000;
+
   const db = new NotesDB();
   const syncManager = new SyncManager(db);
 
@@ -1602,8 +1606,8 @@
     allNotes = notes;
 
     if (notes.length === 0) {
-      // Create a welcome note locally (IndexedDB buffer), push to Supabase immediately.
-      const emptyNote = await db.createNote('Welcome to Aevrune');
+      // Create a blank note locally (IndexedDB buffer), push to Supabase immediately.
+      const emptyNote = await db.createNote('');
       const syncSuccess = await syncManager.syncNote(emptyNote.id, 'save');
       emptyNote.synced = syncSuccess;
       notes.unshift(emptyNote);
@@ -2008,18 +2012,35 @@
     if (currentNoteId) showDeleteConfirmation(currentNoteId);
   });
 
+  // Save throttling: save every 5s while typing continues, plus a final save 5s after typing stops.
+  function scheduleTypingSave() {
+    clearTimeout(saveTimeout);
+    // Final save 5 seconds after typing stops; also stops the periodic save interval.
+    saveTimeout = setTimeout(() => {
+      if (hasUnsavedChanges) saveNote(true);
+      if (typingSaveInterval) {
+        clearInterval(typingSaveInterval);
+        typingSaveInterval = null;
+      }
+    }, SAVE_INTERVAL_MS);
+    // Save every 5 seconds while typing continues.
+    if (!typingSaveInterval) {
+      typingSaveInterval = setInterval(() => {
+        if (hasUnsavedChanges) saveNote(true);
+      }, SAVE_INTERVAL_MS);
+    }
+  }
+
   contentInput.addEventListener('input', () => {
     hasUnsavedChanges = true;
     setStatus('modified');
     updateCounters();
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => saveNote(true), 1100);
+    scheduleTypingSave();
   });
   titleInput.addEventListener('input', () => {
     hasUnsavedChanges = true;
     setStatus('modified');
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => saveNote(true), 1100);
+    scheduleTypingSave();
   });
 
   searchInput.addEventListener('input', () => {
