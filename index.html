@@ -1390,8 +1390,17 @@
           },
           body: JSON.stringify({ action, note, note_id: noteId }),
         });
-        if (!response.ok) throw new Error(`Edge function error: ${response.statusText}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          throw new Error(
+            `Edge function error (${response.status}): ${
+              errorData?.error || response.statusText || 'Unknown error'
+            }`
+          );
+        }
+
         return await response.json();
+       
       } catch (error) {
         console.error('Edge function call failed:', error);
         throw error;
