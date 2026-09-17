@@ -1128,7 +1128,8 @@
     try {
       const userId = localStorage.getItem('userId');
       const username = localStorage.getItem('username');
-      if (userId && username) return { userId, username };
+      const authToken = localStorage.getItem('authToken');
+      if (userId && username && authToken) return { userId, username, authToken };
     } catch {}
     return null;
   }
@@ -1136,6 +1137,7 @@
     try {
       localStorage.removeItem('userId');
       localStorage.removeItem('username');
+      localStorage.removeItem('authToken');
     } catch {}
   }
 
@@ -1238,6 +1240,7 @@
         );
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('username', data.username);
+        localStorage.setItem('authToken', data.token); // Save secure token
         setTimeout(enterApp, 700);
       } else {
         showLoginMessage(data.error || 'Authentication failed');
@@ -1372,10 +1375,19 @@
     }
     async callEdgeFunction(action, note = null, noteId = null) {
       const functionUrl = `${SUPABASE_URL}/functions/v1/${EDGE_FUNCTION_NAME}`;
+      const token = localStorage.getItem('authToken'); // Get secure token
+      
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
       try {
         const response = await fetch(functionUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` // Send secure token
+          },
           body: JSON.stringify({ action, note, note_id: noteId }),
         });
         if (!response.ok) throw new Error(`Edge function error: ${response.statusText}`);
