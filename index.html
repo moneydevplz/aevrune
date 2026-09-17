@@ -1114,6 +1114,8 @@
 <script type="module">
   /* ============================================================
    * Aevrune — front door is UniClvrPass
+   * Supabase is the source of truth. IndexedDB is only a temporary
+   * buffer for updates that have not yet been confirmed by Supabase.
    * ============================================================ */
 
   const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
@@ -1189,11 +1191,11 @@
     messageEl.className = 'login-message';
   }
 
-  function enterApp() {
+  function enterApp(isFreshLogin = false) {
     loginScreen.classList.add('hidden');
     aevruneApp.style.display = 'grid';
     // Init the editor / data layer
-    initAevrune();
+    initAevrune(isFreshLogin);
   }
 
   function showLogin() {
@@ -1241,7 +1243,8 @@
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('username', data.username);
         localStorage.setItem('authToken', data.token); // Save secure token
-        setTimeout(enterApp, 700);
+        // Fresh login: must clear IndexedDB (temporary buffer) and load from Supabase
+        setTimeout(() => enterApp(true), 700);
       } else {
         showLoginMessage(data.error || 'Authentication failed');
       }
@@ -1259,7 +1262,7 @@
     if (e.key === 'Enter') { e.preventDefault(); auth('login'); }
   });
 
-  /* ---------- IndexedDB (unchanged) ---------- */
+  /* ---------- IndexedDB (temporary buffer only) ---------- */
   class NotesDB {
     constructor() {
       this.db = null;
@@ -1365,6 +1368,17 @@
       const note = await this.getNote(noteId);
       if (note) { note.synced = true; await this.saveNote(note); }
     }
+    // Wipe everything in IndexedDB — both notes and sync queue.
+    // Called on logout (error 3) and on fresh login (error 4).
+    async clearAll() {
+      return new Promise((resolve, reject) => {
+        const transaction = this.db.transaction([this.storeName, this.syncQueueStore], 'readwrite');
+        transaction.objectStore(this.storeName).clear();
+        transaction.objectStore(this.syncQueueStore).clear();
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      });
+    }
   }
 
   class SyncManager {
@@ -1406,26 +1420,42 @@
         throw error;
       }
     }
+    // Fetch all notes from Supabase — Supabase is the source of truth.
+    async fetchAllNotes() {
+      try {
+        const result = await this.callEdgeFunction('fetch_all');
+        return (result && result.notes) || [];
+      } catch (error) {
+        console.error('Failed to fetch notes from Supabase:', error);
+        return [];
+      }
+    }
     async syncNote(noteId, action) {
-      if (this.isSyncing) return;
+      if (this.isSyncing) return false;
       this.isSyncing = true;
+      let success = false;
       try {
         if (action === 'save') {
           const note = await this.db.getNote(noteId);
           if (note) {
             await this.callEdgeFunction('save', note);
-            await this.db.markAsSynced(noteId);
+            // Confirmation received from Supabase — remove completely from IndexedDB.
+            // The note now lives in Supabase, IndexedDB is only a temporary buffer.
+            await this.db.deleteNote(noteId);
             await this.db.removeFromSyncQueue(noteId);
+            success = true;
           }
         } else if (action === 'delete') {
           await this.callEdgeFunction('delete', null, noteId);
           await this.db.removeFromSyncQueue(noteId);
+          success = true;
         }
       } catch (error) {
         console.error(`Failed to sync note ${noteId}:`, error);
       } finally {
         this.isSyncing = false;
       }
+      return success;
     }
     async processSyncQueue() {
       const queue = await this.db.getSyncQueue();
@@ -1565,11 +1595,17 @@
 
   async function loadNotes() {
     if (!notesList.querySelector('.skeleton-note')) renderSkeletons();
-    const notes = await db.getAllNotes();
+    // Supabase is the source of truth — fetch from Supabase, not IndexedDB.
+    const notes = await syncManager.fetchAllNotes();
+    // Anything that comes from Supabase is, by definition, synced.
+    notes.forEach(n => { n.synced = true; });
     allNotes = notes;
 
     if (notes.length === 0) {
+      // Create a welcome note locally (IndexedDB buffer), push to Supabase immediately.
       const emptyNote = await db.createNote('Welcome to Aevrune');
+      const syncSuccess = await syncManager.syncNote(emptyNote.id, 'save');
+      emptyNote.synced = syncSuccess;
       notes.unshift(emptyNote);
       allNotes = [emptyNote];
     }
@@ -1650,7 +1686,9 @@
     const el = document.querySelector(`[data-id="${id}"]`);
     if (el) el.classList.add('active');
 
-    const note = await db.getNote(id);
+    // Notes live in Supabase; read from the in-memory list, not IndexedDB.
+    // (Once a note is confirmed synced, it is removed from IndexedDB entirely.)
+    const note = allNotes.find(n => n.id === id);
     if (note) {
       titleInput.value = note.title;
       contentInput.value = note.content;
@@ -1664,23 +1702,26 @@
     if (!currentNoteId) return;
     setStatus('saving');
     try {
-      const existingNote = await db.getNote(currentNoteId);
+      // Read existing note from in-memory list (notes live in Supabase).
+      const existingNote = allNotes.find(n => n.id === currentNoteId);
       const note = {
         id: currentNoteId,
         title: titleInput.value || 'Untitled',
         content: contentInput.value,
-        created: existingNote.created,
+        created: existingNote ? existingNote.created : new Date().toISOString(),
         modified: new Date().toISOString(),
         synced: false,
       };
+      // Temporarily buffer in IndexedDB before pushing to Supabase.
       await db.saveNote(note);
       await db.addToSyncQueue(currentNoteId, 'save');
 
       const idx = allNotes.findIndex(n => n.id === currentNoteId);
       if (idx > -1) allNotes[idx] = note; else allNotes.unshift(note);
 
+      let syncSuccess = false;
       try {
-        await syncManager.syncNote(currentNoteId, 'save');
+        syncSuccess = await syncManager.syncNote(currentNoteId, 'save');
         setStatus('saved');
         if (!silent) toast('Saved');
       } catch (e) {
@@ -1694,7 +1735,14 @@
       if (noteElement) {
         noteElement.querySelector('.note-item-date').textContent = formatDate(note.modified);
         noteElement.querySelector('.note-item-title').textContent = note.title;
-        noteElement.classList.add('unsynced');
+        // Once Supabase confirms the save, the note no longer lives in IndexedDB —
+        // it lives in Supabase. Reflect that in the UI.
+        if (syncSuccess) {
+          noteElement.classList.remove('unsynced');
+          if (idx > -1) allNotes[idx].synced = true;
+        } else {
+          noteElement.classList.add('unsynced');
+        }
       }
       hasUnsavedChanges = false;
       updateSyncBadge();
@@ -1999,19 +2047,22 @@
 
   /* ---------- Logout ---------- */
   function doLogout() {
-    if (hasUnsavedChanges) {
-      saveNote(true).finally(() => {
-        syncManager.stopAutoSync?.();
+    const finishLogout = () => {
+      syncManager.stopAutoSync?.();
+      // On logout, everything in IndexedDB is deleted. IndexedDB is only
+      // a temporary buffer; notes live in Supabase.
+      db.clearAll().then(() => {
         clearSession();
         currentNoteId = null;
         hasUnsavedChanges = false;
         showLogin();
       });
+    };
+
+    if (hasUnsavedChanges) {
+      saveNote(true).finally(finishLogout);
     } else {
-      syncManager.stopAutoSync?.();
-      clearSession();
-      currentNoteId = null;
-      showLogin();
+      finishLogout();
     }
   }
   logoutLink.addEventListener('click', doLogout);
@@ -2046,21 +2097,36 @@
   });
 
   /* ---------- Init ---------- */
-  async function initAevrune() {
-    if (aevruneInitialized) return;
-    aevruneInitialized = true;
-
-    // Show username in footer
+  async function initAevrune(isFreshLogin = false) {
     const session = getStoredSession();
     if (session) {
       footerUsername.textContent = session.username;
       userGlyph.textContent = session.username.charAt(0).toUpperCase();
     }
 
-    await db.init();
+    if (!aevruneInitialized) {
+      aevruneInitialized = true;
+      await db.init();
+    }
+
+    if (isFreshLogin) {
+      // Fresh login: IndexedDB is just a temporary buffer.
+      // Anything in IndexedDB that isn't in Supabase is deleted — clear it all.
+      await db.clearAll();
+    } else {
+      // Page reload (not logout/login): push any pending IndexedDB notes to
+      // Supabase first. IndexedDB is only for updates that haven't been
+      // confirmed by Supabase yet. Once confirmed, syncNote removes them.
+      await syncManager.processSyncQueue();
+    }
+
+    // Load notes from Supabase (source of truth).
     await loadNotes();
-    syncManager.startAutoSync();
-    setInterval(updateSyncBadge, 8000);
+
+    if (!syncManager.syncInterval) {
+      syncManager.startAutoSync();
+      setInterval(updateSyncBadge, 8000);
+    }
   }
 
   window.addEventListener('beforeunload', async () => {
@@ -2073,7 +2139,8 @@
   (function boot() {
     const session = getStoredSession();
     if (session) {
-      enterApp();
+      // Page reload — not a fresh login. Don't wipe IndexedDB; push it instead.
+      enterApp(false);
     } else {
       showLogin();
     }
