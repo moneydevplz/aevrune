@@ -909,7 +909,7 @@
     </button>
 
     <div class="login-brand">
-      <div class="login-glyph">Æ</div>
+      <img class="login-glyph" id="loginLogo" alt="Aevrune" style="width:56px;height:56px;object-fit:contain;" />
       <div class="login-name">Aevrune</div>
     </div>
     <div class="login-tagline">A place to write</div>
@@ -944,7 +944,7 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="brand">
-        <span class="brand-glyph">Æ</span>
+        <img class="brand-glyph" id="brandLogo" alt="Aevrune" style="width:24px;height:24px;object-fit:contain;" />
         <span class="brand-name">Aevrune</span>
       </div>
       <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
@@ -1117,6 +1117,16 @@
    * Supabase is the source of truth. IndexedDB is only a temporary
    * buffer for updates that have not yet been confirmed by Supabase.
    * ============================================================ */
+
+  /* === LOGO CONFIGURATION ===
+   * Change this to use a different logo image file (same directory).
+   * Example: const LOGO_SRC = 'other-logo.png';
+   */
+  const LOGO_SRC = 'china.png';
+
+  // Apply logo to both locations (login screen + sidebar header)
+  document.getElementById('loginLogo').src = LOGO_SRC;
+  document.getElementById('brandLogo').src = LOGO_SRC;
 
   const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
   const EDGE_FUNCTION_NAME = 'sync-notes';
