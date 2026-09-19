@@ -20,9 +20,9 @@
     --text-muted: #8C8175;
     --border: #E5DDD3;
     --molding: #1A1A1A;
-    --accent: #FD7E14;       /* Bright Tangerine Orange */
-    --accent-hover: #E56A10; /* Darker Orange for hover states */
-    --accent-soft: #FFF4E5;  /* Very soft Peach/Beige for subtle backgrounds */
+    --accent: #FD7E14;
+    --accent-hover: #E56A10;
+    --accent-soft: #FFF4E5;
     --success: #5F7A3A;
     --warn: #B08832;
     --danger: #A23B2A;
@@ -44,11 +44,11 @@
     --text-soft: #B5B5B5;
     --text-muted: #6B6B6B;
     --border: #1F1F1F;
-    --molding: #FF8A33;     /* Orange line/border accents */
-    --accent: #FD7E14;      /* Main Dark Mode Orange */
-    --accent-hover: #FFA45C;/* Lighter, glowing orange for dark mode hover */
-    --accent-soft: #3A1F0A; /* Very dark warm brown/orange for subtle backgrounds */
-    --warn: #FFA45C;        /* Lighter orange for warnings so it's visible on black */
+    --molding: #FF8A33;
+    --accent: #FD7E14;
+    --accent-hover: #FFA45C;
+    --accent-soft: #3A1F0A;
+    --warn: #FFA45C;
     --success: #7AB560;
     --danger: #D97060;
     --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.6);
@@ -70,7 +70,7 @@
   }
 
   /* ============================================================
-     LOGIN SCREEN (UniClvrPass, restyled for Time12)
+     LOGIN SCREEN
      ============================================================ */
   .login-screen {
     position: fixed;
@@ -154,9 +154,7 @@
     border-bottom: 2px solid var(--molding);
   }
 
-  .login-form-group {
-    margin-bottom: 24px;
-  }
+  .login-form-group { margin-bottom: 24px; }
   .login-form-group label {
     display: block;
     font-size: 11px;
@@ -200,10 +198,7 @@
     border: 1px solid transparent;
   }
   .btn-auth:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-auth-primary {
-    background: var(--accent);
-    color: var(--bg);
-  }
+  .btn-auth-primary { background: var(--accent); color: var(--bg); }
   .btn-auth-primary:hover:not(:disabled) {
     background: var(--accent-hover);
     transform: translateY(-1px);
@@ -239,24 +234,117 @@
     justify-content: center;
     align-items: center;
   }
-  .powered-by {
-    font-size: 11px;
-    color: var(--text-muted);
-    letter-spacing: 0.04em;
-  }
-  .powered-by .uniclvrpass {
-    font-weight: 600;
-    color: var(--text-soft);
-    letter-spacing: 0.06em;
-  }
+  .powered-by { font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .powered-by .uniclvrpass { font-weight: 600; color: var(--text-soft); letter-spacing: 0.06em; }
 
   /* ============================================================
-     APP LAYOUT
+     APP LAYOUT — flex column: tabs bar on top, body below
      ============================================================ */
   .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---- Tabs Bar ---- */
+  .tabs-bar {
+    height: 76px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 32px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    animation: tabsAppear 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes tabsAppear {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px 24px;
+    color: var(--text-muted);
+    font-family: var(--sans);
+    transition: var(--t);
+  }
+
+  .tab-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+    transition: background 0.3s ease, border-color 0.3s ease,
+                color 0.3s ease, box-shadow 0.4s ease;
+  }
+  .tab-circle svg { width: 17px; height: 17px; }
+
+  .tab-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    transition: var(--t);
+  }
+
+  .tab:hover .tab-circle {
+    border-color: var(--text-muted);
+    color: var(--text-soft);
+    background: var(--bg);
+  }
+  .tab:hover .tab-label { color: var(--text-soft); }
+
+  /* Active tab — white glowing circle */
+  .tab.active .tab-circle {
+    background: #FFFFFF;
+    border-color: rgba(0, 0, 0, 0.06);
+    color: #18120E;
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.04),
+      0 0 8px 1px rgba(255, 255, 255, 0.8),
+      0 0 18px 4px rgba(255, 255, 255, 0.5),
+      0 0 36px 8px rgba(255, 255, 255, 0.25),
+      0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  html[data-theme="dark"] .tab.active .tab-circle {
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.35),
+      0 0 10px 1px rgba(255, 255, 255, 0.55),
+      0 0 22px 4px rgba(255, 255, 255, 0.35),
+      0 0 44px 8px rgba(255, 255, 255, 0.18),
+      0 0 72px 14px rgba(255, 255, 255, 0.08);
+  }
+
+  .tab.active .tab-label {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* ---- App Body (sidebar + editor grid) ---- */
+  .app-body {
     display: grid;
     grid-template-columns: 300px 1fr;
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .sidebar {
@@ -264,7 +352,8 @@
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -350,7 +439,7 @@
   .btn-new:hover { background: var(--accent-hover); transform: translateY(-1px); }
   .btn-new svg { width: 14px; height: 14px; }
 
-  .notes-list { flex: 1; overflow-y: auto; }
+  .notes-list { flex: 1; overflow-y: auto; min-height: 0; }
   .notes-list::-webkit-scrollbar { width: 4px; }
   .notes-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
   .notes-list::-webkit-scrollbar-track { background: transparent; }
@@ -422,6 +511,7 @@
     gap: 10px;
     font-size: 11px;
     color: var(--text-muted);
+    flex-shrink: 0;
   }
   .footer-row {
     display: flex;
@@ -465,8 +555,10 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
+    min-height: 0;
     background: var(--bg);
+    overflow: hidden;
   }
 
   .editor-top-bar {
@@ -539,6 +631,7 @@
     flex: 1;
     overflow-y: auto;
     padding-top: 56px;
+    min-height: 0;
   }
   .editor-scroll::-webkit-scrollbar { width: 8px; }
   .editor-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -888,8 +981,13 @@
   }
 
   @media (max-width: 860px) {
-    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .app-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .sidebar { height: 40vh; border-right: none; border-bottom: 2px solid var(--molding); }
+    .tabs-bar { height: 64px; padding: 0 16px; }
+    .tab { padding: 6px 18px; }
+    .tab-circle { width: 32px; height: 32px; }
+    .tab-circle svg { width: 15px; height: 15px; }
+    .tab-label { font-size: 9px; }
     .editor-inner { padding: 40px 24px 140px; }
     .editor-title-input { font-size: 32px; }
     .toast-container { left: 50%; }
@@ -901,7 +999,7 @@
 </head>
 <body>
 
-<!-- ============ LOGIN SCREEN (UniClvrPass gateway) ============ -->
+<!-- ============ LOGIN SCREEN ============ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-shell">
     <button class="login-theme-toggle" id="loginThemeToggle" title="Toggle theme">
@@ -941,123 +1039,141 @@
 
 <!-- ============ APP ============ -->
 <div class="app" id="Time12App" style="display:none;">
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <img class="brand-glyph" id="brandLogo" alt="Time12" style="width:24px;height:24px;object-fit:contain;" />
-        <span class="brand-name">Time12</span>
-      </div>
-      <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
-        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-      </button>
-    </div>
-
-    <div class="sidebar-search">
-      <input type="text" class="search-input" id="searchInput" placeholder="Search the shelves..." aria-label="Search notes">
-    </div>
-
-    <div class="sidebar-list-head">
-      <span class="sidebar-title" id="notesCountLabel">Notes</span>
-      <button class="btn-new" id="newNoteBtn" title="New note (Ctrl+N)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14M5 12h14"/>
+  <!-- Tab bar — centered, space on sides for future tabs -->
+  <nav class="tabs-bar">
+    <button class="tab active" data-tab="notes">
+      <span class="tab-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="8" y1="13" x2="16" y2="13"/>
+          <line x1="8" y1="17" x2="14" y2="17"/>
         </svg>
-      </button>
-    </div>
+      </span>
+      <span class="tab-label">Notes</span>
+    </button>
+  </nav>
 
-    <div class="notes-list" id="notesList"></div>
+  <!-- App body: sidebar + editor -->
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <img class="brand-glyph" id="brandLogo" alt="Time12" style="width:24px;height:24px;object-fit:contain;" />
+          <span class="brand-name">Time12</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+        </button>
+      </div>
 
-    <div class="sidebar-footer">
-      <div class="footer-row">
-        <div class="sync-status">
-          <span class="footer-stat-dot" id="syncDot"></span>
-          <span id="syncLabel">Synced</span>
-        </div>
-        <a class="footer-link" id="shortcutsLink">Shortcuts</a>
+      <div class="sidebar-search">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search the shelves..." aria-label="Search notes">
       </div>
-      <div class="footer-row">
-        <div class="footer-user">
-          <span class="user-glyph" id="userGlyph">U</span>
-          <span id="footerUsername">user</span>
-        </div>
-        <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
-      </div>
-    </div>
-  </aside>
 
-  <main class="editor-area">
-    <div class="editor-top-bar">
-      <div class="status-indicator" id="statusIndicator">
-        <span class="status-dot"></span>
-        <span id="statusText">Ready</span>
+      <div class="sidebar-list-head">
+        <span class="sidebar-title" id="notesCountLabel">Notes</span>
+        <button class="btn-new" id="newNoteBtn" title="New note (Ctrl+N)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
       </div>
-      <div class="editor-actions">
-        <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">Save</button>
-        <button class="btn-action danger" id="deleteBtn" title="Delete (Ctrl+Shift+D)">Delete</button>
-      </div>
-    </div>
 
-    <div class="editor-scroll">
-      <div class="editor-inner">
-        <input type="text" class="editor-title-input" id="titleInput" placeholder="Untitled" autocomplete="off" spellcheck="false">
-        <div class="editor-meta">
-          <span id="metaModified">—</span>
-          <span class="dot"></span>
-          <span id="metaWords">0 words</span>
-        </div>
-        <textarea
-          class="textarea"
-          id="contentInput"
-          placeholder="The room is quiet. Begin."
-          spellcheck="true"
-        ></textarea>
-      </div>
-    </div>
+      <div class="notes-list" id="notesList"></div>
 
-    <div class="editor-bottom-bar">
-      <div class="editor-toolbar" id="editorToolbar">
-        <div class="toolbar-group">
-          <button class="btn-toolbar" data-fmt="bold" title="Bold (Ctrl+B)"><span style="font-weight:700">B</span></button>
-          <button class="btn-toolbar" data-fmt="italic" title="Italic (Ctrl+I)"><span style="font-style:italic">I</span></button>
-          <button class="btn-toolbar" data-fmt="underline" title="Underline (Ctrl+U)"><span style="text-decoration:underline">U</span></button>
+      <div class="sidebar-footer">
+        <div class="footer-row">
+          <div class="sync-status">
+            <span class="footer-stat-dot" id="syncDot"></span>
+            <span id="syncLabel">Synced</span>
+          </div>
+          <a class="footer-link" id="shortcutsLink">Shortcuts</a>
         </div>
-        <div class="toolbar-group">
-          <button class="btn-toolbar" data-fmt="h1" title="Heading 1"><span class="serif">H1</span></button>
-          <button class="btn-toolbar" data-fmt="h2" title="Heading 2"><span class="serif">H2</span></button>
-          <button class="btn-toolbar" data-fmt="bullet" title="Bullet list">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-              <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-            </svg>
-          </button>
-          <button class="btn-toolbar" data-fmt="quote" title="Quote">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2-1 0-1 .008-1 1.008V21z"/>
-              <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="toolbar-group">
-          <button class="btn-toolbar" data-fmt="link" title="Link (Ctrl+L)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-            </svg>
-          </button>
-          <button class="btn-toolbar" data-fmt="code" title="Code">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-            </svg>
-          </button>
+        <div class="footer-row">
+          <div class="footer-user">
+            <span class="user-glyph" id="userGlyph">U</span>
+            <span id="footerUsername">user</span>
+          </div>
+          <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
         </div>
       </div>
-      <div class="counter">
-        <span><strong id="wordCount">0</strong> words</span>
-        <span class="counter-sep">·</span>
-        <span><strong id="readTime">0</strong> min read</span>
+    </aside>
+
+    <main class="editor-area">
+      <div class="editor-top-bar">
+        <div class="status-indicator" id="statusIndicator">
+          <span class="status-dot"></span>
+          <span id="statusText">Ready</span>
+        </div>
+        <div class="editor-actions">
+          <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">Save</button>
+          <button class="btn-action danger" id="deleteBtn" title="Delete (Ctrl+Shift+D)">Delete</button>
+        </div>
       </div>
-    </div>
-  </main>
+
+      <div class="editor-scroll">
+        <div class="editor-inner">
+          <input type="text" class="editor-title-input" id="titleInput" placeholder="Untitled" autocomplete="off" spellcheck="false">
+          <div class="editor-meta">
+            <span id="metaModified">—</span>
+            <span class="dot"></span>
+            <span id="metaWords">0 words</span>
+          </div>
+          <textarea
+            class="textarea"
+            id="contentInput"
+            placeholder="The room is quiet. Begin."
+            spellcheck="true"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="editor-bottom-bar">
+        <div class="editor-toolbar" id="editorToolbar">
+          <div class="toolbar-group">
+            <button class="btn-toolbar" data-fmt="bold" title="Bold (Ctrl+B)"><span style="font-weight:700">B</span></button>
+            <button class="btn-toolbar" data-fmt="italic" title="Italic (Ctrl+I)"><span style="font-style:italic">I</span></button>
+            <button class="btn-toolbar" data-fmt="underline" title="Underline (Ctrl+U)"><span style="text-decoration:underline">U</span></button>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn-toolbar" data-fmt="h1" title="Heading 1"><span class="serif">H1</span></button>
+            <button class="btn-toolbar" data-fmt="h2" title="Heading 2"><span class="serif">H2</span></button>
+            <button class="btn-toolbar" data-fmt="bullet" title="Bullet list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            </button>
+            <button class="btn-toolbar" data-fmt="quote" title="Quote">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2-1 0-1 .008-1 1.008V21z"/>
+                <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn-toolbar" data-fmt="link" title="Link (Ctrl+L)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+            </button>
+            <button class="btn-toolbar" data-fmt="code" title="Code">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="counter">
+          <span><strong id="wordCount">0</strong> words</span>
+          <span class="counter-sep">·</span>
+          <span><strong id="readTime">0</strong> min read</span>
+        </div>
+      </div>
+    </main>
+  </div>
 </div>
 
 <!-- Delete dialog -->
@@ -1118,21 +1234,13 @@
    * buffer for updates that have not yet been confirmed by Supabase.
    * ============================================================ */
 
-  /* === LOGO CONFIGURATION ===
-   * Change this to use a different logo image file (same directory).
-   * Example: const LOGO_SRC = 'other-logo.png';
-   */
   const LOGO_SRC = 'vietnam.png';
-
-  // Apply logo to both locations (login screen + sidebar header)
   document.getElementById('loginLogo').src = LOGO_SRC;
   document.getElementById('brandLogo').src = LOGO_SRC;
 
   const SUPABASE_URL = 'https://bukeabrzlgcwzwtzmwld.supabase.co';
   const EDGE_FUNCTION_NAME = 'sync-notes';
   const AUTO_SYNC_INTERVAL = 5000;
-
-  // UniClvrPass auth endpoint
   const AUTH_API_URL = 'https://lbujqhnadkwqgojbhalw.supabase.co/functions/v1/auth';
 
   /* ---------- Auth / Session ---------- */
@@ -1153,7 +1261,7 @@
     } catch {}
   }
 
-  /* ---------- Theme (shared across login + app) ---------- */
+  /* ---------- Theme ---------- */
   const SUN_ICON = `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>`;
   const MOON_ICON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
 
@@ -1183,7 +1291,7 @@
   themeToggle?.addEventListener('click', toggleTheme);
   loginThemeToggle?.addEventListener('click', toggleTheme);
 
-  /* ---------- Login Screen Logic ---------- */
+  /* ---------- Login Screen ---------- */
   const loginScreen = document.getElementById('loginScreen');
   const Time12App = document.getElementById('Time12App');
   const messageEl = document.getElementById('message');
@@ -1203,8 +1311,7 @@
 
   function enterApp(isFreshLogin = false) {
     loginScreen.classList.add('hidden');
-    Time12App.style.display = 'grid';
-    // Init the editor / data layer
+    Time12App.style.display = 'flex';
     initTime12(isFreshLogin);
   }
 
@@ -1252,8 +1359,7 @@
         );
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('username', data.username);
-        localStorage.setItem('authToken', data.token); // Save secure token
-        // Fresh login: must clear IndexedDB (temporary buffer) and load from Supabase
+        localStorage.setItem('authToken', data.token);
         setTimeout(() => enterApp(true), 700);
       } else {
         showLoginMessage(data.error || 'Authentication failed');
@@ -1272,7 +1378,7 @@
     if (e.key === 'Enter') { e.preventDefault(); auth('login'); }
   });
 
-  /* ---------- IndexedDB (temporary buffer only) ---------- */
+  /* ---------- IndexedDB ---------- */
   class NotesDB {
     constructor() {
       this.db = null;
@@ -1378,8 +1484,6 @@
       const note = await this.getNote(noteId);
       if (note) { note.synced = true; await this.saveNote(note); }
     }
-    // Wipe everything in IndexedDB — both notes and sync queue.
-    // Called on logout (error 3) and on fresh login (error 4).
     async clearAll() {
       return new Promise((resolve, reject) => {
         const transaction = this.db.transaction([this.storeName, this.syncQueueStore], 'readwrite');
@@ -1399,7 +1503,7 @@
     }
     async callEdgeFunction(action, note = null, noteId = null) {
       const functionUrl = `${SUPABASE_URL}/functions/v1/${EDGE_FUNCTION_NAME}`;
-      const token = localStorage.getItem('authToken'); // Get secure token
+      const token = localStorage.getItem('authToken');
       
       if (!token) {
         throw new Error("Not authenticated");
@@ -1410,7 +1514,7 @@
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // Send secure token
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ action, note, note_id: noteId }),
         });
@@ -1422,15 +1526,12 @@
             }`
           );
         }
-
         return await response.json();
-       
       } catch (error) {
         console.error('Edge function call failed:', error);
         throw error;
       }
     }
-    // Fetch all notes from Supabase — Supabase is the source of truth.
     async fetchAllNotes() {
       try {
         const result = await this.callEdgeFunction('fetch_all');
@@ -1449,8 +1550,6 @@
           const note = await this.db.getNote(noteId);
           if (note) {
             await this.callEdgeFunction('save', note);
-            // Confirmation received from Supabase — remove completely from IndexedDB.
-            // The note now lives in Supabase, IndexedDB is only a temporary buffer.
             await this.db.deleteNote(noteId);
             await this.db.removeFromSyncQueue(noteId);
             success = true;
@@ -1495,7 +1594,6 @@
   let allNotes = [];
   let Time12Initialized = false;
 
-  // Throttle save timing: save every 5s while typing, final save 5s after typing stops.
   let typingSaveInterval = null;
   const SAVE_INTERVAL_MS = 5000;
 
@@ -1532,6 +1630,15 @@
   const logoutLink = $('logoutLink');
   const footerUsername = $('footerUsername');
   const userGlyph = $('userGlyph');
+
+  /* ---------- Tab Navigation ---------- */
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      // Future: switch content based on tab.dataset.tab
+    });
+  });
 
   /* ---------- Toasts ---------- */
   function toast(msg, type = 'success') {
@@ -1609,14 +1716,11 @@
 
   async function loadNotes() {
     if (!notesList.querySelector('.skeleton-note')) renderSkeletons();
-    // Supabase is the source of truth — fetch from Supabase, not IndexedDB.
     const notes = await syncManager.fetchAllNotes();
-    // Anything that comes from Supabase is, by definition, synced.
     notes.forEach(n => { n.synced = true; });
     allNotes = notes;
 
     if (notes.length === 0) {
-      // Create a blank note locally (IndexedDB buffer), push to Supabase immediately.
       const emptyNote = await db.createNote('');
       const syncSuccess = await syncManager.syncNote(emptyNote.id, 'save');
       emptyNote.synced = syncSuccess;
@@ -1700,8 +1804,6 @@
     const el = document.querySelector(`[data-id="${id}"]`);
     if (el) el.classList.add('active');
 
-    // Notes live in Supabase; read from the in-memory list, not IndexedDB.
-    // (Once a note is confirmed synced, it is removed from IndexedDB entirely.)
     const note = allNotes.find(n => n.id === id);
     if (note) {
       titleInput.value = note.title;
@@ -1716,7 +1818,6 @@
     if (!currentNoteId) return;
     setStatus('saving');
     try {
-      // Read existing note from in-memory list (notes live in Supabase).
       const existingNote = allNotes.find(n => n.id === currentNoteId);
       const note = {
         id: currentNoteId,
@@ -1726,7 +1827,6 @@
         modified: new Date().toISOString(),
         synced: false,
       };
-      // Temporarily buffer in IndexedDB before pushing to Supabase.
       await db.saveNote(note);
       await db.addToSyncQueue(currentNoteId, 'save');
 
@@ -1749,8 +1849,6 @@
       if (noteElement) {
         noteElement.querySelector('.note-item-date').textContent = formatDate(note.modified);
         noteElement.querySelector('.note-item-title').textContent = note.title;
-        // Once Supabase confirms the save, the note no longer lives in IndexedDB —
-        // it lives in Supabase. Reflect that in the UI.
         if (syncSuccess) {
           noteElement.classList.remove('unsynced');
           if (idx > -1) allNotes[idx].synced = true;
@@ -2022,10 +2120,8 @@
     if (currentNoteId) showDeleteConfirmation(currentNoteId);
   });
 
-  // Save throttling: save every 5s while typing continues, plus a final save 5s after typing stops.
   function scheduleTypingSave() {
     clearTimeout(saveTimeout);
-    // Final save 5 seconds after typing stops; also stops the periodic save interval.
     saveTimeout = setTimeout(() => {
       if (hasUnsavedChanges) saveNote(true);
       if (typingSaveInterval) {
@@ -2033,7 +2129,6 @@
         typingSaveInterval = null;
       }
     }, SAVE_INTERVAL_MS);
-    // Save every 5 seconds while typing continues.
     if (!typingSaveInterval) {
       typingSaveInterval = setInterval(() => {
         if (hasUnsavedChanges) saveNote(true);
@@ -2080,8 +2175,6 @@
   function doLogout() {
     const finishLogout = () => {
       syncManager.stopAutoSync?.();
-      // On logout, everything in IndexedDB is deleted. IndexedDB is only
-      // a temporary buffer; notes live in Supabase.
       db.clearAll().then(() => {
         clearSession();
         currentNoteId = null;
@@ -2141,17 +2234,11 @@
     }
 
     if (isFreshLogin) {
-      // Fresh login: IndexedDB is just a temporary buffer.
-      // Anything in IndexedDB that isn't in Supabase is deleted — clear it all.
       await db.clearAll();
     } else {
-      // Page reload (not logout/login): push any pending IndexedDB notes to
-      // Supabase first. IndexedDB is only for updates that haven't been
-      // confirmed by Supabase yet. Once confirmed, syncNote removes them.
       await syncManager.processSyncQueue();
     }
 
-    // Load notes from Supabase (source of truth).
     await loadNotes();
 
     if (!syncManager.syncInterval) {
@@ -2166,11 +2253,10 @@
     }
   });
 
-  /* ---------- Boot: pick door ---------- */
+  /* ---------- Boot ---------- */
   (function boot() {
     const session = getStoredSession();
     if (session) {
-      // Page reload — not a fresh login. Don't wipe IndexedDB; push it instead.
       enterApp(false);
     } else {
       showLogin();
