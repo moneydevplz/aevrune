@@ -247,31 +247,14 @@
     overflow: hidden;
   }
 
-  /* ---- Tabs Bar ---- */
-  .tabs-bar {
-    height: 44px;
-    background: var(--surface);
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0 24px;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 20;
-    animation: tabsAppear 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  @keyframes tabsAppear {
-    from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
+  /* ---- Tabs (now integrated inside the editor-top-bar) ---- */
   .tabs-container {
     display: flex;
     align-items: center;
     gap: 4px;
     padding: 4px;
-    background: var(--surface-2);
     border-radius: 999px;
+    justify-self: center;
   }
 
   .tab {
@@ -291,20 +274,11 @@
     color: var(--text-soft);
   }
 
-  /* Active tab — pure white pill with a soft white glow */
+  /* Active tab — subtle surface pill, no separate grey container */
   .tab.active {
-    background: #FFFFFF;
-    color: #18120E;
+    background: var(--surface-2);
+    color: var(--text);
     font-weight: 600;
-    box-shadow: 
-      0 2px 8px rgba(0, 0, 0, 0.08),
-      0 0 14px rgba(255, 255, 255, 0.2);
-  }
-
-  html[data-theme="dark"] .tab.active {
-    box-shadow: 
-      0 2px 8px rgba(0, 0, 0, 0.4),
-      0 0 16px rgba(255, 255, 255, 0.25);
   }
 
   /* ---- App Body (sidebar + editor grid) ---- */
@@ -530,12 +504,13 @@
     overflow: hidden;
   }
 
+  /* Editor top bar now hosts: status (left) | tabs (center) | actions (right) */
   .editor-top-bar {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 56px;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 0 32px;
     background: var(--bg);
@@ -551,6 +526,7 @@
     align-items: center;
     gap: 8px;
     letter-spacing: 0.02em;
+    justify-self: start;
   }
   .status-dot {
     width: 6px; height: 6px;
@@ -569,7 +545,11 @@
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
-  .editor-actions { display: flex; gap: 8px; }
+  .editor-actions {
+    display: flex;
+    gap: 8px;
+    justify-self: end;
+  }
   .btn-action {
     height: 32px;
     padding: 0 12px;
@@ -952,8 +932,8 @@
   @media (max-width: 860px) {
     .app-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .sidebar { height: 40vh; border-right: none; border-bottom: 2px solid var(--molding); }
-    .tabs-bar { height: 40px; padding: 0 16px; }
     .tab { padding: 6px 16px; font-size: 12px; }
+    .editor-top-bar { padding: 0 16px; }
     .editor-inner { padding: 40px 24px 140px; }
     .editor-title-input { font-size: 32px; }
     .toast-container { left: 50%; }
@@ -1005,14 +985,6 @@
 
 <!-- ============ APP ============ -->
 <div class="app" id="Time12App" style="display:none;">
-  <!-- Tab bar -->
-  <nav class="tabs-bar">
-    <div class="tabs-container">
-      <button class="tab active" data-tab="notes">Notes</button>
-      <!-- Space for future tabs here -->
-    </div>
-  </nav>
-
   <!-- App body: sidebar + editor -->
   <div class="app-body">
     <aside class="sidebar">
@@ -1064,6 +1036,10 @@
         <div class="status-indicator" id="statusIndicator">
           <span class="status-dot"></span>
           <span id="statusText">Ready</span>
+        </div>
+        <div class="tabs-container">
+          <button class="tab active" data-tab="notes">Notes</button>
+          <!-- Space for future tabs here -->
         </div>
         <div class="editor-actions">
           <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">Save</button>
