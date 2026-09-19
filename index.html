@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Aevrune — A place to write</title>
+<title>Time12 — A place to write</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
@@ -70,7 +70,7 @@
   }
 
   /* ============================================================
-     LOGIN SCREEN (UniClvrPass, restyled for Aevrune)
+     LOGIN SCREEN (UniClvrPass, restyled for Time12)
      ============================================================ */
   .login-screen {
     position: fixed;
@@ -909,8 +909,8 @@
     </button>
 
     <div class="login-brand">
-      <img class="login-glyph" id="loginLogo" alt="Aevrune" style="width:56px;height:56px;object-fit:contain;" />
-      <div class="login-name">Aevrune</div>
+      <img class="login-glyph" id="loginLogo" alt="Time12" style="width:56px;height:56px;object-fit:contain;" />
+      <div class="login-name">Time12</div>
     </div>
     <div class="login-tagline">A place to write</div>
 
@@ -940,12 +940,12 @@
 </div>
 
 <!-- ============ APP ============ -->
-<div class="app" id="aevruneApp" style="display:none;">
+<div class="app" id="Time12App" style="display:none;">
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="brand">
-        <img class="brand-glyph" id="brandLogo" alt="Aevrune" style="width:24px;height:24px;object-fit:contain;" />
-        <span class="brand-name">Aevrune</span>
+        <img class="brand-glyph" id="brandLogo" alt="Time12" style="width:24px;height:24px;object-fit:contain;" />
+        <span class="brand-name">Time12</span>
       </div>
       <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
         <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
@@ -1113,7 +1113,7 @@
 
 <script type="module">
   /* ============================================================
-   * Aevrune — front door is UniClvrPass
+   * Time12 — front door is UniClvrPass
    * Supabase is the source of truth. IndexedDB is only a temporary
    * buffer for updates that have not yet been confirmed by Supabase.
    * ============================================================ */
@@ -1163,10 +1163,10 @@
   const loginThemeToggle = document.getElementById('loginThemeToggle');
 
   function getStoredTheme() {
-    try { return localStorage.getItem('aevrune-theme'); } catch { return null; }
+    try { return localStorage.getItem('Time12-theme'); } catch { return null; }
   }
   function setStoredTheme(t) {
-    try { localStorage.setItem('aevrune-theme', t); } catch {}
+    try { localStorage.setItem('Time12-theme', t); } catch {}
   }
   function applyTheme(t) {
     document.documentElement.setAttribute('data-theme', t);
@@ -1185,7 +1185,7 @@
 
   /* ---------- Login Screen Logic ---------- */
   const loginScreen = document.getElementById('loginScreen');
-  const aevruneApp = document.getElementById('aevruneApp');
+  const Time12App = document.getElementById('Time12App');
   const messageEl = document.getElementById('message');
   const usernameInput = document.getElementById('username');
   const passwordInput = document.getElementById('password');
@@ -1203,13 +1203,13 @@
 
   function enterApp(isFreshLogin = false) {
     loginScreen.classList.add('hidden');
-    aevruneApp.style.display = 'grid';
+    Time12App.style.display = 'grid';
     // Init the editor / data layer
-    initAevrune(isFreshLogin);
+    initTime12(isFreshLogin);
   }
 
   function showLogin() {
-    aevruneApp.style.display = 'none';
+    Time12App.style.display = 'none';
     loginScreen.classList.remove('hidden');
     usernameInput.value = '';
     passwordInput.value = '';
@@ -1247,7 +1247,7 @@
 
       if (data.success) {
         showLoginMessage(
-          action === 'register' ? 'Account created — welcome to Aevrune' : 'Welcome back to Aevrune',
+          action === 'register' ? 'Account created — welcome to Time12' : 'Welcome back to Time12',
           'success'
         );
         localStorage.setItem('userId', data.userId);
@@ -1276,7 +1276,7 @@
   class NotesDB {
     constructor() {
       this.db = null;
-      this.dbName = 'AevruneDB';
+      this.dbName = 'Time12DB';
       this.storeName = 'notes';
       this.syncQueueStore = 'syncQueue';
     }
@@ -1485,7 +1485,7 @@
   }
 
   /* ============================================================
-   * Aevrune UI Layer
+   * Time12 UI Layer
    * ============================================================ */
   let currentNoteId = null;
   let saveTimeout = null;
@@ -1493,7 +1493,7 @@
   let hasUnsavedChanges = false;
   let searchQuery = '';
   let allNotes = [];
-  let aevruneInitialized = false;
+  let Time12Initialized = false;
 
   // Throttle save timing: save every 5s while typing, final save 5s after typing stops.
   let typingSaveInterval = null;
@@ -2128,15 +2128,15 @@
   });
 
   /* ---------- Init ---------- */
-  async function initAevrune(isFreshLogin = false) {
+  async function initTime12(isFreshLogin = false) {
     const session = getStoredSession();
     if (session) {
       footerUsername.textContent = session.username;
       userGlyph.textContent = session.username.charAt(0).toUpperCase();
     }
 
-    if (!aevruneInitialized) {
-      aevruneInitialized = true;
+    if (!Time12Initialized) {
+      Time12Initialized = true;
       await db.init();
     }
 
