@@ -247,113 +247,38 @@
     overflow: hidden;
   }
 
-  /* ---- Global Top Bar (Status + Tabs + Actions) ---- */
-  .app-top-bar {
-    height: 56px;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    padding: 0 32px;
-    background: var(--bg);
-    flex-shrink: 0;
-    z-index: 10;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .status-indicator {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    letter-spacing: 0.02em;
-    justify-self: start;
-  }
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--text-muted);
-  }
-  .status-indicator.saved { color: var(--success); }
-  .status-indicator.saved .status-dot { background: var(--success); }
-  .status-indicator.saving { color: var(--accent); }
-  .status-indicator.saving .status-dot { background: var(--accent); animation: pulse 1s infinite; }
-  .status-indicator.modified { color: var(--warn); }
-  .status-indicator.modified .status-dot { background: var(--warn); }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-
-  .editor-actions {
-    display: flex;
-    gap: 8px;
-    justify-self: end;
-  }
-  .btn-action {
-    height: 32px;
-    padding: 0 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    color: var(--text-soft);
-    font-family: var(--sans);
-    font-size: 12px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: var(--t);
-  }
-  .btn-action:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-soft);
-  }
-  .btn-action.danger:hover {
-    border-color: var(--danger);
-    color: var(--danger);
-  }
-
-  /* ---- Underline Tabs (Centered) ---- */
+  /* ---- Tabs (now integrated inside the editor-top-bar) ---- */
   .tabs-container {
     display: flex;
-    gap: 8px;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
     justify-self: center;
   }
 
-  .tab-item {
-    padding: 12px 18px;
+  .tab {
+    padding: 6px 18px;
+    border-radius: 999px;
     color: var(--text-muted);
     cursor: pointer;
     font-family: var(--sans);
-    font-size: 14px;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px; /* Overlap top bar border */
+    font-size: 13px;
+    font-weight: 500;
     transition: var(--t);
+    border: none;
+    background: transparent;
   }
 
-  .tab-item:hover:not(.active) {
+  .tab:hover:not(.active) {
     color: var(--text-soft);
   }
 
-  .tab-item.active {
+  /* Active tab — subtle surface pill, no separate grey container */
+  .tab.active {
+    background: var(--surface-2);
     color: var(--text);
-    font-weight: bold;
-    border-bottom: 2px solid var(--text);
-  }
-
-  /* ---- Views Wrapper ---- */
-  .views-wrapper {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-    overflow: hidden;
+    font-weight: 600;
   }
 
   /* ---- App Body (sidebar + editor grid) ---- */
@@ -363,27 +288,6 @@
     flex: 1;
     min-height: 0;
     overflow: hidden;
-  }
-
-  /* ---- Tasks View ---- */
-  .tasks-view {
-    flex: 1;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    background: var(--bg);
-  }
-  .tasks-view h2 {
-    font-family: var(--serif);
-    font-size: 32px;
-    color: var(--text-soft);
-    margin-bottom: 8px;
-  }
-  .tasks-view p {
-    color: var(--text-muted);
-    font-size: 14px;
   }
 
   .sidebar {
@@ -600,9 +504,82 @@
     overflow: hidden;
   }
 
+  /* Editor top bar now hosts: status (left) | tabs (center) | actions (right) */
+  .editor-top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 32px;
+    background: var(--bg);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .status-indicator {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.02em;
+    justify-self: start;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .status-indicator.saved { color: var(--success); }
+  .status-indicator.saved .status-dot { background: var(--success); }
+  .status-indicator.saving { color: var(--accent); }
+  .status-indicator.saving .status-dot { background: var(--accent); animation: pulse 1s infinite; }
+  .status-indicator.modified { color: var(--warn); }
+  .status-indicator.modified .status-dot { background: var(--warn); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 8px;
+    justify-self: end;
+  }
+  .btn-action {
+    height: 32px;
+    padding: 0 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text-soft);
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--t);
+  }
+  .btn-action:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .btn-action.danger:hover {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+
   .editor-scroll {
     flex: 1;
     overflow-y: auto;
+    padding-top: 56px;
     min-height: 0;
   }
   .editor-scroll::-webkit-scrollbar { width: 8px; }
@@ -955,8 +932,8 @@
   @media (max-width: 860px) {
     .app-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .sidebar { height: 40vh; border-right: none; border-bottom: 2px solid var(--molding); }
-    .tab-item { padding: 6px 16px; font-size: 12px; }
-    .app-top-bar { padding: 0 16px; }
+    .tab { padding: 6px 16px; font-size: 12px; }
+    .editor-top-bar { padding: 0 16px; }
     .editor-inner { padding: 40px 24px 140px; }
     .editor-title-input { font-size: 32px; }
     .toast-container { left: 50%; }
@@ -1008,144 +985,132 @@
 
 <!-- ============ APP ============ -->
 <div class="app" id="Time12App" style="display:none;">
-  
-  <!-- Global Top Bar -->
-  <div class="app-top-bar">
-    <div class="status-indicator" id="statusIndicator">
-      <span class="status-dot"></span>
-      <span id="statusText">Ready</span>
-    </div>
-    
-    <div class="tabs-container">
-      <button class="tab-item active" data-tab="notes">Notes</button>
-      <button class="tab-item" data-tab="tasks">Tasks</button>
-    </div>
-
-    <div class="editor-actions">
-      <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">Save</button>
-      <button class="btn-action danger" id="deleteBtn" title="Delete (Ctrl+Shift+D)">Delete</button>
-    </div>
-  </div>
-
-  <!-- Views Wrapper -->
-  <div class="views-wrapper">
-    
-    <!-- Notes View -->
-    <div class="app-body" id="notesView">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <div class="brand">
-            <img class="brand-glyph" id="brandLogo" alt="Time12" style="width:24px;height:24px;object-fit:contain;" />
-            <span class="brand-name">Time12</span>
-          </div>
-          <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
-            <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
-          </button>
+  <!-- App body: sidebar + editor -->
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <img class="brand-glyph" id="brandLogo" alt="Time12" style="width:24px;height:24px;object-fit:contain;" />
+          <span class="brand-name">Time12</span>
         </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle theme (Ctrl+J)">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+        </button>
+      </div>
 
-        <div class="sidebar-search">
-          <input type="text" class="search-input" id="searchInput" placeholder="Search the shelves..." aria-label="Search notes">
-        </div>
+      <div class="sidebar-search">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search the shelves..." aria-label="Search notes">
+      </div>
 
-        <div class="sidebar-list-head">
-          <span class="sidebar-title" id="notesCountLabel">Notes</span>
-          <button class="btn-new" id="newNoteBtn" title="New note (Ctrl+N)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 5v14M5 12h14"/>
-            </svg>
-          </button>
-        </div>
+      <div class="sidebar-list-head">
+        <span class="sidebar-title" id="notesCountLabel">Notes</span>
+        <button class="btn-new" id="newNoteBtn" title="New note (Ctrl+N)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+      </div>
 
-        <div class="notes-list" id="notesList"></div>
+      <div class="notes-list" id="notesList"></div>
 
-        <div class="sidebar-footer">
-          <div class="footer-row">
-            <div class="sync-status">
-              <span class="footer-stat-dot" id="syncDot"></span>
-              <span id="syncLabel">Synced</span>
-            </div>
-            <a class="footer-link" id="shortcutsLink">Shortcuts</a>
+      <div class="sidebar-footer">
+        <div class="footer-row">
+          <div class="sync-status">
+            <span class="footer-stat-dot" id="syncDot"></span>
+            <span id="syncLabel">Synced</span>
           </div>
-          <div class="footer-row">
-            <div class="footer-user">
-              <span class="user-glyph" id="userGlyph">U</span>
-              <span id="footerUsername">user</span>
-            </div>
-            <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
-          </div>
+          <a class="footer-link" id="shortcutsLink">Shortcuts</a>
         </div>
-      </aside>
-
-      <main class="editor-area">
-        <div class="editor-scroll">
-          <div class="editor-inner">
-            <input type="text" class="editor-title-input" id="titleInput" placeholder="Untitled" autocomplete="off" spellcheck="false">
-            <div class="editor-meta">
-              <span id="metaModified">—</span>
-              <span class="dot"></span>
-              <span id="metaWords">0 words</span>
-            </div>
-            <textarea
-              class="textarea"
-              id="contentInput"
-              placeholder="The room is quiet. Begin."
-              spellcheck="true"
-            ></textarea>
+        <div class="footer-row">
+          <div class="footer-user">
+            <span class="user-glyph" id="userGlyph">U</span>
+            <span id="footerUsername">user</span>
           </div>
+          <a class="footer-link" id="logoutLink" title="Sign out">Sign out</a>
         </div>
+      </div>
+    </aside>
 
-        <div class="editor-bottom-bar">
-          <div class="editor-toolbar" id="editorToolbar">
-            <div class="toolbar-group">
-              <button class="btn-toolbar" data-fmt="bold" title="Bold (Ctrl+B)"><span style="font-weight:700">B</span></button>
-              <button class="btn-toolbar" data-fmt="italic" title="Italic (Ctrl+I)"><span style="font-style:italic">I</span></button>
-              <button class="btn-toolbar" data-fmt="underline" title="Underline (Ctrl+U)"><span style="text-decoration:underline">U</span></button>
-            </div>
-            <div class="toolbar-group">
-              <button class="btn-toolbar" data-fmt="h1" title="Heading 1"><span class="serif">H1</span></button>
-              <button class="btn-toolbar" data-fmt="h2" title="Heading 2"><span class="serif">H2</span></button>
-              <button class="btn-toolbar" data-fmt="bullet" title="Bullet list">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-                  <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
-              </button>
-              <button class="btn-toolbar" data-fmt="quote" title="Quote">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2-1 0-1 .008-1 1.008V21z"/>
-                  <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/>
-                </svg>
-              </button>
-            </div>
-            <div class="toolbar-group">
-              <button class="btn-toolbar" data-fmt="link" title="Link (Ctrl+L)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                </svg>
-              </button>
-              <button class="btn-toolbar" data-fmt="code" title="Code">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-                </svg>
-              </button>
-            </div>
+    <main class="editor-area">
+      <div class="editor-top-bar">
+        <div class="status-indicator" id="statusIndicator">
+          <span class="status-dot"></span>
+          <span id="statusText">Ready</span>
+        </div>
+        <div class="tabs-container">
+          <button class="tab active" data-tab="notes">Notes</button>
+          <button class="tab" data-tab="tasks">Tasks</button>
+          <!-- Space for future tabs here -->
+        </div>
+        <div class="editor-actions">
+          <button class="btn-action" id="saveBtn" title="Save (Ctrl+S)">Save</button>
+          <button class="btn-action danger" id="deleteBtn" title="Delete (Ctrl+Shift+D)">Delete</button>
+        </div>
+      </div>
+
+      <div class="editor-scroll">
+        <div class="editor-inner">
+          <input type="text" class="editor-title-input" id="titleInput" placeholder="Untitled" autocomplete="off" spellcheck="false">
+          <div class="editor-meta">
+            <span id="metaModified">—</span>
+            <span class="dot"></span>
+            <span id="metaWords">0 words</span>
           </div>
-          <div class="counter">
-            <span><strong id="wordCount">0</strong> words</span>
-            <span class="counter-sep">·</span>
-            <span><strong id="readTime">0</strong> min read</span>
+          <textarea
+            class="textarea"
+            id="contentInput"
+            placeholder="The room is quiet. Begin."
+            spellcheck="true"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="editor-bottom-bar">
+        <div class="editor-toolbar" id="editorToolbar">
+          <div class="toolbar-group">
+            <button class="btn-toolbar" data-fmt="bold" title="Bold (Ctrl+B)"><span style="font-weight:700">B</span></button>
+            <button class="btn-toolbar" data-fmt="italic" title="Italic (Ctrl+I)"><span style="font-style:italic">I</span></button>
+            <button class="btn-toolbar" data-fmt="underline" title="Underline (Ctrl+U)"><span style="text-decoration:underline">U</span></button>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn-toolbar" data-fmt="h1" title="Heading 1"><span class="serif">H1</span></button>
+            <button class="btn-toolbar" data-fmt="h2" title="Heading 2"><span class="serif">H2</span></button>
+            <button class="btn-toolbar" data-fmt="bullet" title="Bullet list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            </button>
+            <button class="btn-toolbar" data-fmt="quote" title="Quote">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2-2-2H4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2-1 0-1 .008-1 1.008V21z"/>
+                <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2-2-2h-4c-1.25 0-2 .75-2 2v6c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn-toolbar" data-fmt="link" title="Link (Ctrl+L)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+            </button>
+            <button class="btn-toolbar" data-fmt="code" title="Code">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </button>
           </div>
         </div>
-      </main>
-    </div>
+        <div class="counter">
+          <span><strong id="wordCount">0</strong> words</span>
+          <span class="counter-sep">·</span>
+          <span><strong id="readTime">0</strong> min read</span>
+        </div>
+      </div>
 
-    <!-- Tasks View -->
-    <div class="tasks-view" id="tasksView">
-      <h2>Tasks</h2>
-      <p>Blank for now. Your tasks will live here.</p>
-    </div>
-
+      <div class="tasks-view" id="tasksView" style="display:none; flex:1; min-height:0; padding-top:56px;"></div>
+    </main>
   </div>
 </div>
 
@@ -1605,26 +1570,24 @@
   const userGlyph = $('userGlyph');
 
   /* ---------- Tab Navigation ---------- */
-  const notesView = document.getElementById('notesView');
-  const tasksView = document.getElementById('tasksView');
-  const editorActionsEl = document.querySelector('.editor-actions');
-
-  document.querySelectorAll('.tab-item').forEach(tab => {
+  document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
 
-      const target = tab.dataset.tab;
-      if (target === 'notes') {
-        notesView.style.display = 'grid';
+      const tabType = tab.dataset.tab;
+      const editorScroll = document.querySelector('.editor-scroll');
+      const editorBottomBar = document.querySelector('.editor-bottom-bar');
+      const tasksView = document.getElementById('tasksView');
+
+      if (tabType === 'tasks') {
+        editorScroll.style.display = 'none';
+        editorBottomBar.style.display = 'none';
+        tasksView.style.display = 'block';
+      } else {
+        editorScroll.style.display = '';
+        editorBottomBar.style.display = '';
         tasksView.style.display = 'none';
-        if (statusIndicator) statusIndicator.style.display = 'flex';
-        if (editorActionsEl) editorActionsEl.style.display = 'flex';
-      } else if (target === 'tasks') {
-        notesView.style.display = 'none';
-        tasksView.style.display = 'flex';
-        if (statusIndicator) statusIndicator.style.display = 'none';
-        if (editorActionsEl) editorActionsEl.style.display = 'none';
       }
     });
   });
