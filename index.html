@@ -238,7 +238,7 @@
   .powered-by .uniclvrpass { font-weight: 600; color: var(--text-soft); letter-spacing: 0.06em; }
 
   /* ============================================================
-     APP LAYOUT — flex column: tabs bar on top, body below
+     APP LAYOUT
      ============================================================ */
   .app {
     display: flex;
@@ -249,13 +249,12 @@
 
   /* ---- Tabs Bar ---- */
   .tabs-bar {
-    height: 76px;
+    height: 64px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
     padding: 0 32px;
     flex-shrink: 0;
     position: relative;
@@ -267,75 +266,47 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  .tab {
+  .tabs-container {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 8px 24px;
-    color: var(--text-muted);
-    font-family: var(--sans);
-    transition: var(--t);
-  }
-
-  .tab-circle {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    gap: 4px;
+    padding: 5px;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    display: grid;
-    place-items: center;
+    border-radius: 999px;
+  }
+
+  .tab {
+    padding: 8px 22px;
+    border-radius: 999px;
     color: var(--text-muted);
-    transition: background 0.3s ease, border-color 0.3s ease,
-                color 0.3s ease, box-shadow 0.4s ease;
-  }
-  .tab-circle svg { width: 17px; height: 17px; }
-
-  .tab-label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
+    cursor: pointer;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
     transition: var(--t);
+    border: none;
+    background: transparent;
   }
 
-  .tab:hover .tab-circle {
-    border-color: var(--text-muted);
+  .tab:hover:not(.active) {
     color: var(--text-soft);
-    background: var(--bg);
   }
-  .tab:hover .tab-label { color: var(--text-soft); }
 
-  /* Active tab — white glowing circle */
-  .tab.active .tab-circle {
+  /* Active tab — pure white pill with a soft white glow */
+  .tab.active {
     background: #FFFFFF;
-    border-color: rgba(0, 0, 0, 0.06);
     color: #18120E;
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.04),
-      0 0 8px 1px rgba(255, 255, 255, 0.8),
-      0 0 18px 4px rgba(255, 255, 255, 0.5),
-      0 0 36px 8px rgba(255, 255, 255, 0.25),
-      0 4px 12px rgba(0, 0, 0, 0.06);
+    font-weight: 600;
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.08),
+      0 0 14px rgba(255, 255, 255, 0.2);
   }
 
-  html[data-theme="dark"] .tab.active .tab-circle {
-    border-color: rgba(255, 255, 255, 0.35);
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.35),
-      0 0 10px 1px rgba(255, 255, 255, 0.55),
-      0 0 22px 4px rgba(255, 255, 255, 0.35),
-      0 0 44px 8px rgba(255, 255, 255, 0.18),
-      0 0 72px 14px rgba(255, 255, 255, 0.08);
-  }
-
-  .tab.active .tab-label {
-    color: var(--text);
-    font-weight: 700;
+  html[data-theme="dark"] .tab.active {
+    box-shadow: 
+      0 2px 8px rgba(0, 0, 0, 0.4),
+      0 0 16px rgba(255, 255, 255, 0.25);
   }
 
   /* ---- App Body (sidebar + editor grid) ---- */
@@ -983,11 +954,8 @@
   @media (max-width: 860px) {
     .app-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
     .sidebar { height: 40vh; border-right: none; border-bottom: 2px solid var(--molding); }
-    .tabs-bar { height: 64px; padding: 0 16px; }
-    .tab { padding: 6px 18px; }
-    .tab-circle { width: 32px; height: 32px; }
-    .tab-circle svg { width: 15px; height: 15px; }
-    .tab-label { font-size: 9px; }
+    .tabs-bar { height: 56px; padding: 0 16px; }
+    .tab { padding: 8px 18px; font-size: 12px; }
     .editor-inner { padding: 40px 24px 140px; }
     .editor-title-input { font-size: 32px; }
     .toast-container { left: 50%; }
@@ -1039,19 +1007,12 @@
 
 <!-- ============ APP ============ -->
 <div class="app" id="Time12App" style="display:none;">
-  <!-- Tab bar — centered, space on sides for future tabs -->
+  <!-- Tab bar -->
   <nav class="tabs-bar">
-    <button class="tab active" data-tab="notes">
-      <span class="tab-circle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="8" y1="13" x2="16" y2="13"/>
-          <line x1="8" y1="17" x2="14" y2="17"/>
-        </svg>
-      </span>
-      <span class="tab-label">Notes</span>
-    </button>
+    <div class="tabs-container">
+      <button class="tab active" data-tab="notes">Notes</button>
+      <!-- Space for future tabs here -->
+    </div>
   </nav>
 
   <!-- App body: sidebar + editor -->
@@ -1636,7 +1597,6 @@
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      // Future: switch content based on tab.dataset.tab
     });
   });
 
